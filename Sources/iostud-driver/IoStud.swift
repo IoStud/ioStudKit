@@ -8,7 +8,7 @@ public class IoStud {
     private var sessionToken: String?
     
     lazy private var authenticator = AuthenticationHandler(ioStud: self)
-    lazy private var examsHandler = ExamsGradeHandler(ioStud: self)
+    lazy private var examsGradeHandler = ExamsGradeHandler(ioStud: self)
     lazy private var studentBioHandler = StudentBioHandler(ioStud: self)
     
     public init(studentID: String, studentPwd: String) {
@@ -48,10 +48,10 @@ public class IoStud {
     }
     
     // TODO Controllare che ci sia il token / ancora valido
-    public func retrieveExamsInfo() async -> [ExamsGradeResponse.Esame]? {
+    public func retrieveExamsGrades() async -> [ExamGrade]? {
         do {
-            let examsResponse = try await examsHandler.requestStudentExams()
-            return examsResponse.ritorno!.esami
+            return try await examsGradeHandler.requestStudentExams()
+
         } catch ExamsGradeError.invalidResponse {
             print("Invalid response from exam portal")
         } catch ExamsGradeError.invalidURL {
@@ -63,7 +63,6 @@ public class IoStud {
         }
         return nil
     }
-    
     
     public func getStudentID() -> String {
         return self.studentID

@@ -7,7 +7,7 @@ public class ExamsGradeHandler {
         self.ioStud = ioStud
     }
 
-    public func requestStudentExams() async throws -> ExamsGradeResponse {
+    public func requestStudentExams() async throws -> [ExamGrade] {
         
         guard let token = try? ioStud.getSessionToken() else {
             throw IoStudError.missingToken
@@ -28,11 +28,31 @@ public class ExamsGradeHandler {
         }
         
         do {
-            return try JSONDecoder().decode(ExamsGradeResponse.self, from: data)
+            let jsonResponse = try JSONDecoder().decode(ExamsGradeResponse.self, from: data)
+            return examGradeConverter(response: jsonResponse.ritorno.esami)
         } catch {
             throw ExamsGradeError.invalidData
         }
     }
+}
+
+private func examGradeConverter(response: [ExamsGradeResponse.Esame]) -> [ExamGrade] {
+    var exams: [ExamGrade] = []
+    
+    for exam in response {
+        exams.append(ExamGrade(
+            courseCode: exam.codiceInsegnamento,
+            courseName: exam.descrizione,
+            date: exam.data,
+            cfu: Int(exam.cfu),
+            ssd: exam.ssd,
+            academicYear: exam.annoAcca,
+            nominalGrade: exam.esito.valoreNominale,
+            numericGrade: exam.esito.valoreNonNominale
+        ))
+    }
+
+    return exams
 }
 
 public enum ExamsGradeError: Error {

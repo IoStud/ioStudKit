@@ -21,5 +21,5 @@ public struct ExamsGradeResponse: Codable {
         let esami: [ExamsGradeResponse.Esame]
     }
     
-    let ritorno: ExamsGradeResponse.Ritorno?
+    let ritorno: ExamsGradeResponse.Ritorno //TODO: Validate behavior for students with empty exam history
 }

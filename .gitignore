@@ -69,3 +69,4 @@ fastlane/test_output
 .secret
 secret
 .swiftpm
+Tests/iostud-driverTests/secret.swift
