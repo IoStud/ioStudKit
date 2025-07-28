@@ -17,13 +17,9 @@ public struct StudentBio {
     let enrollmentType: String
     let gender: String
     let degreeType: String?
-    let birthProvince: String
     let birthCountry: String
-    let birthTown: String
     let personalEmail: String
     let totalCredits: String
     let institutionalEmail: String
     let academicYearOfCourse: String
-    let citizenship: String
-    let citizenshipEn: String
 }

@@ -5,7 +5,7 @@ import Testing
     // Write your test here and use APIs like `#expect(...)` to check expected conditions.
     let ioStud = IoStud(studentID: secret_maticola , studentPwd: secret_pw)
     
-    //await ioStud.doLogin()
+    await ioStud.doLogin()
     
     guard let token = try? ioStud.getSessionToken() else {
         return

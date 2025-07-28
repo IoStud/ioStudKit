@@ -44,4 +44,3 @@ public class AuthenticationHandler {
 public enum AuthError: Error {
     case invalidURL, invalidResponse, invalidData
 }
-

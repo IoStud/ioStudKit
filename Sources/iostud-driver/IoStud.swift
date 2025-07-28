@@ -37,9 +37,9 @@ public class IoStud {
             return studentBio
         } catch StudentBioError.invalidResponse {
             print("Invalid response from studentbio portal")
-        } catch ExamsGradeError.invalidURL {
+        } catch StudentBioError.invalidURL {
             print("Invalid URL for studentbio")
-        } catch ExamsGradeError.invalidData {
+        } catch StudentBioError.invalidData {
             print("Invalid data from studentbio request")
         } catch {
             print("Unexpected error from studentbio request")
