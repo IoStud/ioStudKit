@@ -9,6 +9,7 @@ public class IoStud {
     
     lazy private var authenticator = AuthenticationHandler(ioStud: self)
     lazy private var examsHandler = ExamsGradeHandler(ioStud: self)
+    lazy private var studentBioHandler = StudentBioHandler(ioStud: self)
     
     public init(studentID: String, studentPwd: String) {
         self.studentID = studentID
@@ -30,22 +31,37 @@ public class IoStud {
         }
     }
     
+    public func retrieveStudentBio() async -> StudentBio? {
+        do {
+            let studentBio = try await studentBioHandler.requestStudentBio()
+            return studentBio
+        } catch StudentBioError.invalidResponse {
+            print("Invalid response from studentbio portal")
+        } catch ExamsGradeError.invalidURL {
+            print("Invalid URL for studentbio")
+        } catch ExamsGradeError.invalidData {
+            print("Invalid data from studentbio request")
+        } catch {
+            print("Unexpected error from studentbio request")
+        }
+        return nil
+    }
+    
     // TODO Controllare che ci sia il token / ancora valido
-    public func retrieveExamsInfo() async -> [Esame] {
+    public func retrieveExamsInfo() async -> [ExamsGradeResponse.Esame]? {
         do {
             let examsResponse = try await examsHandler.requestStudentExams()
             return examsResponse.ritorno!.esami
         } catch ExamsGradeError.invalidResponse {
-            print("Invalid response from infostud portal")
+            print("Invalid response from exam portal")
         } catch ExamsGradeError.invalidURL {
-            print("Invalid URL for infostud")
+            print("Invalid URL for exam")
         } catch ExamsGradeError.invalidData {
             print("Invalid data from exams request")
         } catch {
             print("Unexpected error from exams request")
         }
-        
-        return [Esame]()
+        return nil
     }
     
     

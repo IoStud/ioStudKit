@@ -3,21 +3,28 @@ import Testing
 
 @Test func example() async throws {
     // Write your test here and use APIs like `#expect(...)` to check expected conditions.
-    let matricola = ""
-    let pwd = ""
-
-    let ioStud = IoStud(studentID: matricola, studentPwd: pwd)
+    let ioStud = IoStud(studentID: matricola, studentPwd: password)
     await ioStud.doLogin()
     guard let token = try? ioStud.getSessionToken() else {
         return
     }
     print(token)
-    let exams = await ioStud.retrieveExamsInfo()
-
-    for exam in exams {
+    guard let exams = await ioStud.retrieveExamsInfo() else {
+        print("Errore esami")
+        return
+    }
+    print(exams)
+    /*for exam in exams {
         print(exam.descrizione)
         print(exam.cfu)
         print(exam.esito.valoreNominale)
         print("----- ----- -----")
+    }*/
+    
+    guard let bio = await ioStud.retrieveStudentBio() else {
+        print("Errore bio")
+        return
     }
+    
+    print(bio)
 }

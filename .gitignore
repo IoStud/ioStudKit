@@ -67,4 +67,5 @@ fastlane/test_output
 
 # custom
 .secret
+secret
 .swiftpm
