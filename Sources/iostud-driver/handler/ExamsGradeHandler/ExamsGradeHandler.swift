@@ -15,7 +15,9 @@ public class ExamsGradeHandler {
         
         let endpoint = "\(ioStud.getEndpointAPI())/studente/\(ioStud.getStudentID())/esamiall?ingresso=\(token)"
         
-        guard let url = URL(string: endpoint) else { throw ExamsGradeError.invalidURL }
+        guard let url = URL(string: endpoint) else {
+            throw InfostudRequestError.invalidURL
+        }
         
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
@@ -23,16 +25,19 @@ public class ExamsGradeHandler {
         
         let (data, response) = try await URLSession.shared.data(for: request)
         
-        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
-            throw ExamsGradeError.invalidResponse
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw InfostudRequestError.invalidHTTPResponse
         }
         
-        do {
-            let jsonResponse = try JSONDecoder().decode(ExamsGradeResponse.self, from: data)
-            return examGradeConverter(response: jsonResponse.ritorno.esami)
-        } catch {
-            throw ExamsGradeError.invalidData
+        guard (200...299).contains(httpResponse.statusCode) else {
+            throw InfostudRequestError.httpRequestError
         }
+        
+        guard let jsonResponse = try? JSONDecoder().decode(ExamsGradeResponse.self, from: data) else {
+            throw InfostudRequestError.jsonDecodingError
+        }
+        
+        return examGradeConverter(response: jsonResponse.ritorno.esami)
     }
 }
 
@@ -53,8 +58,4 @@ private func examGradeConverter(response: [ExamsGradeResponse.Esame]) -> [ExamGr
     }
 
     return exams
-}
-
-public enum ExamsGradeError: Error {
-    case invalidURL, invalidResponse, invalidData
 }

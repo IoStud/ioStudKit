@@ -8,9 +8,9 @@ public class AuthenticationHandler {
     }
     
     public func login() async throws -> AuthResponse {
-        let endpoint = self.ioStud.getEndpointLogin()
-        guard let endpointURL = URL(string: endpoint) else {
-            throw AuthError.invalidURL
+        
+        guard let endpointURL = URL(string: ioStud.getEndpointLogin()) else {
+            throw InfostudRequestError.invalidURL
         }
         
         let loginData = AuthRequest (
@@ -28,19 +28,18 @@ public class AuthenticationHandler {
         
         let (data, response) = try await URLSession.shared.data(for: request)
         
-        // TODO Gestire codici errori
-        guard let response = response as? HTTPURLResponse, response.statusCode == 200 else {
-            throw AuthError.invalidResponse
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw InfostudRequestError.invalidHTTPResponse
         }
         
-        do {
-            return try JSONDecoder().decode(AuthResponse.self, from: data)
-        } catch {
-            throw AuthError.invalidData
+        guard (200...299).contains(httpResponse.statusCode) else {
+            throw InfostudRequestError.httpRequestError
         }
+        
+        guard let jsonResponse = try? JSONDecoder().decode(AuthResponse.self, from: data) else {
+            throw InfostudRequestError.jsonDecodingError
+        }
+        
+        return jsonResponse
     }
-}
-
-public enum AuthError: Error {
-    case invalidURL, invalidResponse, invalidData
 }

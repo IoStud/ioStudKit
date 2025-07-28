@@ -20,12 +20,14 @@ public class IoStud {
         do {
             let loginResponse = try await authenticator.login()
             self.sessionToken = loginResponse.result.tokeniws
-        } catch AuthError.invalidResponse {
+        } catch InfostudRequestError.invalidHTTPResponse {
             print("Invalid response from login portal")
-        } catch AuthError.invalidURL {
+        } catch InfostudRequestError.invalidURL {
             print("Invalid URL for login")
-        } catch AuthError.invalidData {
+        } catch InfostudRequestError.jsonDecodingError {
             print("Invalid data from login request")
+        /*} catch InfostudRequestError.httpRequestError(error: Int) {
+            print("HTTP Request error, error code:\(error)")*/
         } catch {
             print("Unexpected error from login")
         }
@@ -35,12 +37,14 @@ public class IoStud {
         do {
             let studentBio = try await studentBioHandler.requestStudentBio()
             return studentBio
-        } catch StudentBioError.invalidResponse {
+        } catch InfostudRequestError.invalidHTTPResponse {
             print("Invalid response from studentbio portal")
-        } catch StudentBioError.invalidURL {
+        } catch InfostudRequestError.invalidURL {
             print("Invalid URL for studentbio")
-        } catch StudentBioError.invalidData {
+        } catch InfostudRequestError.jsonDecodingError {
             print("Invalid data from studentbio request")
+        /*} catch InfostudRequestError.httpRequestError(error: Int) {
+            print("HTTP Request error, error code:\(error)")*/
         } catch {
             print("Unexpected error from studentbio request")
         }
@@ -52,12 +56,14 @@ public class IoStud {
         do {
             return try await examsGradeHandler.requestStudentExams()
 
-        } catch ExamsGradeError.invalidResponse {
+        } catch InfostudRequestError.invalidHTTPResponse {
             print("Invalid response from exam portal")
-        } catch ExamsGradeError.invalidURL {
+        } catch InfostudRequestError.invalidURL {
             print("Invalid URL for exam")
-        } catch ExamsGradeError.invalidData {
+        } catch InfostudRequestError.jsonDecodingError {
             print("Invalid data from exams request")
+        /*} catch InfostudRequestError.httpRequestError(error: Int) {
+            print("HTTP Request error, error code:\(error)")*/
         } catch {
             print("Unexpected error from exams request")
         }
