@@ -27,5 +27,10 @@ public struct StudentBioResponse: Codable {
         let annoAccaCors: String
     }
     
+    public struct Esito: Codable {
+        let flagEsito: Int
+    }
+    
     let ritorno: StudentBioResponse.Ritorno
+    let esito: StudentBioResponse.Esito
 }

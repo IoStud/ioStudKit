@@ -20,14 +20,14 @@ public class IoStud {
         do {
             let loginResponse = try await authenticator.login()
             self.sessionToken = loginResponse.result.tokeniws
-        } catch InfostudRequestError.invalidHTTPResponse {
-            print("Invalid response from login portal")
+        } catch InfostudRequestError.invalidHTTPResponse(let errMessage) {
+            print("Invalid response from login portal\nMessage error: \(errMessage)")
         } catch InfostudRequestError.invalidURL {
             print("Invalid URL for login")
         } catch InfostudRequestError.jsonDecodingError {
             print("Invalid data from login request")
-        /*} catch InfostudRequestError.httpRequestError(error: Int) {
-            print("HTTP Request error, error code:\(error)")*/
+        } catch InfostudRequestError.httpRequestError(let errCode) {
+            print("HTTP Request error, error code:\(errCode)")
         } catch {
             print("Unexpected error from login")
         }
@@ -35,16 +35,15 @@ public class IoStud {
     
     public func retrieveStudentBio() async -> StudentBio? {
         do {
-            let studentBio = try await studentBioHandler.requestStudentBio()
-            return studentBio
-        } catch InfostudRequestError.invalidHTTPResponse {
-            print("Invalid response from studentbio portal")
+            return try await studentBioHandler.requestStudentBio()
+        } catch InfostudRequestError.invalidHTTPResponse(let errMessage) {
+            print("Invalid response from login portal\nMessage error: \(errMessage)")
         } catch InfostudRequestError.invalidURL {
             print("Invalid URL for studentbio")
         } catch InfostudRequestError.jsonDecodingError {
             print("Invalid data from studentbio request")
-        /*} catch InfostudRequestError.httpRequestError(error: Int) {
-            print("HTTP Request error, error code:\(error)")*/
+        } catch InfostudRequestError.httpRequestError(let errCode) {
+            print("HTTP Request error, error code:\(errCode)")
         } catch {
             print("Unexpected error from studentbio request")
         }
@@ -55,15 +54,14 @@ public class IoStud {
     public func retrieveExamsGrades() async -> [ExamGrade]? {
         do {
             return try await examsGradeHandler.requestStudentExams()
-
-        } catch InfostudRequestError.invalidHTTPResponse {
-            print("Invalid response from exam portal")
+        } catch InfostudRequestError.invalidHTTPResponse(let errMessage) {
+            print("Invalid response from login portal\nMessage error: \(errMessage)")
         } catch InfostudRequestError.invalidURL {
             print("Invalid URL for exam")
         } catch InfostudRequestError.jsonDecodingError {
             print("Invalid data from exams request")
-        /*} catch InfostudRequestError.httpRequestError(error: Int) {
-            print("HTTP Request error, error code:\(error)")*/
+        } catch InfostudRequestError.httpRequestError(let errCode) {
+            print("HTTP Request error, error code:\(errCode)")
         } catch {
             print("Unexpected error from exams request")
         }

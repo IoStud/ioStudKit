@@ -25,11 +25,11 @@ public class StudentBioHandler {
         let (data, response) = try await URLSession.shared.data(for: request)
         
         guard let httpResponse = response as? HTTPURLResponse else {
-            throw InfostudRequestError.invalidHTTPResponse
+            throw InfostudRequestError.invalidHTTPResponse("Invalid HTTP Response")
         }
         
         guard (200...299).contains(httpResponse.statusCode) else {
-            throw InfostudRequestError.httpRequestError
+            throw InfostudRequestError.httpRequestError(httpResponse.statusCode)
         }
         
         guard let jsonResponse = try? JSONDecoder().decode(StudentBioResponse.self, from: data) else {
