@@ -8,9 +8,10 @@ public class AuthenticationHandler {
     }
     
     public func login() async throws -> AuthResponse {
+        let endpoint = ioStud.getEndpointLogin()
         
-        guard let endpointURL = URL(string: ioStud.getEndpointLogin()) else {
-            throw InfostudRequestError.invalidURL
+        guard let endpointURL = URL(string: endpoint) else {
+            throw RequestError.invalidURL(url: endpoint)
         }
         
         let loginData = AuthRequest (
@@ -29,15 +30,15 @@ public class AuthenticationHandler {
         let (data, response) = try await URLSession.shared.data(for: request)
         
         guard let httpResponse = response as? HTTPURLResponse else {
-            throw InfostudRequestError.invalidHTTPResponse("Invalid HTTP Response")
+            throw RequestError.invalidHTTPResponse
         }
         
         guard (200...299).contains(httpResponse.statusCode) else {
-            throw InfostudRequestError.httpRequestError(httpResponse.statusCode)
+            throw RequestError.httpRequestError(code: httpResponse.statusCode)
         }
         
         guard let jsonResponse = try? JSONDecoder().decode(AuthResponse.self, from: data) else {
-            throw InfostudRequestError.jsonDecodingError
+            throw RequestError.jsonDecodingError
         }
         
         return jsonResponse

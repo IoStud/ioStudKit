@@ -1,8 +1,9 @@
 import Foundation
 
-public enum InfostudRequestError: Error {
-        case invalidURL
-        case invalidHTTPResponse(String)
-        case httpRequestError(Int)
-        case jsonDecodingError
+public enum RequestError: Error {
+    case invalidURL(url: String)
+    case invalidHTTPResponse
+    case httpRequestError(code: Int)
+    case jsonDecodingError
+    case infostudError(info: String)
 }
