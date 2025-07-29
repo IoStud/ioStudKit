@@ -8,7 +8,7 @@ public class IoStud {
     private var sessionToken: String?
     
     lazy private var authenticator = AuthenticationHandler(ioStud: self)
-    lazy private var examsGradeHandler = ExamsGradeHandler(ioStud: self)
+    lazy private var examsHandler = ExamsHandler(ioStud: self)
     lazy private var studentBioHandler = StudentBioHandler(ioStud: self)
     
     public init(studentID: String, studentPwd: String) {
@@ -54,22 +54,42 @@ public class IoStud {
         return nil
     }
     
-    // TODO Controllare che ci sia il token / ancora valido
-    public func retrieveExamsGrades() async -> [ExamGrade]? {
+    // TODO: Controllare che ci sia il token / ancora valido
+    public func retrieveDoneExams() async -> [ExamDone]? {
         do {
-            return try await examsGradeHandler.requestStudentExams()
+            return try await examsHandler.requestDoneExams()
         } catch RequestError.invalidHTTPResponse {
-            print("Invalid HTTP request for exams grades")
+            print("Invalid HTTP request for done exams")
         } catch RequestError.invalidURL {
-            print("Invalid URL for exam")
+            print("Invalid URL for done exam")
         } catch RequestError.jsonDecodingError {
-            print("Invalid data from exams request")
+            print("Invalid data from done exams request")
         } catch RequestError.httpRequestError(let errCode) {
-            print("HTTP Request error, error code:\(errCode)")
+            print("HTTP Request error for done exams, error code:\(errCode)")
         } catch RequestError.infostudError(let info) {
-            print("Invalid response from infostud for exams grades request\nMessage error: \(info)")
+            print("Invalid response from infostud for done exams request\nMessage error: \(info)")
         } catch {
-            print("Unexpected error from exams request")
+            print("Unexpected error from done exams request")
+        }
+        return nil
+    }
+    
+    // TODO: Controllare che ci sia il token / ancora valido
+    public func retrieveDoableExams() async -> [ExamDoable]? {
+        do {
+            return try await examsHandler.requestDoableExams()
+        } catch RequestError.invalidHTTPResponse {
+            print("Invalid HTTP request for doable exams")
+        } catch RequestError.invalidURL {
+            print("Invalid URL for doable exams")
+        } catch RequestError.jsonDecodingError {
+            print("Invalid data from doable exams request")
+        } catch RequestError.httpRequestError(let errCode) {
+            print("HTTP Request error for doable exams, error code:\(errCode)")
+        } catch RequestError.infostudError(let info) {
+            print("Invalid response from infostud for doable exams request\nMessage error: \(info)")
+        } catch {
+            print("Unexpected error from doable exams request")
         }
         return nil
     }

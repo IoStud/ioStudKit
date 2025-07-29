@@ -2,7 +2,9 @@ import Foundation
 
 public struct StudentBioResponse: Codable {
     
-    // TODO: Filtrare ancora su solo cose necessarie o aggiungere altro
+    let esito: InfostudRequestResultFlags
+    let ritorno: StudentBioResponse.Ritorno
+    
     public struct Ritorno: Codable {
         let codiceFiscale: String
         let cognome: String
@@ -26,11 +28,32 @@ public struct StudentBioResponse: Codable {
         let indiMailIstituzionale: String
         let annoAccaCors: String
     }
-    
-    public struct Esito: Codable {
-        let flagEsito: Int
-    }
-    
-    let ritorno: StudentBioResponse.Ritorno
-    let esito: StudentBioResponse.Esito
+}
+
+public func studentBioConverter(from response: StudentBioResponse) -> StudentBio {
+    let values = response.ritorno
+    let student = StudentBio(
+          cf: values.codiceFiscale,
+          surname: values.cognome,
+          name: values.nome,
+          birthDay: values.dataDiNascita,
+          placeOfBirth: values.luogoDiNascita,
+          courseYear: values.annoCorso,
+          firstEnrollment: values.primaIscr,
+          lastEnrollment: values.ultIscr,
+          faculty: values.facolta,
+          courseName: values.nomeCorso,
+          currentAcademicYear: values.annoAccaAtt,
+          studentId: String(values.matricola),
+          courseCode: values.codCorso,
+          enrollmentType: values.tipoIscrizione,
+          gender: values.sesso,
+          degreeType: values.tipoLaurea,
+          birthCountry: values.nazioneNascita,
+          personalEmail: values.indiMail,
+          totalCredits: values.creditiTotali,
+          institutionalEmail: values.indiMailIstituzionale,
+          academicYearOfCourse: values.annoAccaCors,
+    )
+    return student
 }

@@ -2,6 +2,9 @@ import Foundation
 
 public struct AuthResponse: Codable {
     
+    let error: AuthResponse.AuthResponseError
+    let result: AuthResponse.AuthResponseResult
+    
     public struct AuthResponseError: Codable {
         let httpcode: Int?
         let code: String?
@@ -13,7 +16,4 @@ public struct AuthResponse: Codable {
         let token: String
         let tokeniws: String
     }
-    
-    let error: AuthResponse.AuthResponseError
-    let result: AuthResponse.AuthResponseResult
 }

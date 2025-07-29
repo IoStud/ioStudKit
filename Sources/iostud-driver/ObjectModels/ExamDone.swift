@@ -1,6 +1,6 @@
 import Foundation
 
-public struct ExamGrade {
+public struct ExamDone {
     let courseCode: String
     let courseName: String
     let date: String

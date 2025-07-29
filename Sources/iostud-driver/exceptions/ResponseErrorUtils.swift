@@ -1,5 +1,12 @@
 import Foundation
 
+public struct InfostudRequestResultFlags: Codable {
+    let flagEsito: Int
+    let id: Int
+    let nota: String?
+    //let ritorno: String?
+}
+
 // To be used in StudentBioHandler and ExamGradeHandler
 public func checkErrorFlag(from response: StudentBioResponse) throws {
     switch response.esito.flagEsito {
