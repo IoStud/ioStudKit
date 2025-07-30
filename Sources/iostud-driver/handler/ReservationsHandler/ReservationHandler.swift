@@ -1,19 +1,20 @@
 import Foundation
 //import FoundationNetworking
 
-public class StudentBioHandler {
-    private let ioStud: IoStud
-    
-    init(ioStud: IoStud) {
+public class ReservationsHandler {
+    private var ioStud: IoStud
+
+    public init(ioStud: IoStud) {
         self.ioStud = ioStud
     }
-    
-    public func requestStudentBio() async throws -> StudentBio {
+
+    public func requestAvailableReservations(for exam: ExamDoable, and student: StudentBio) async throws -> [Reservation] {
+        
         guard let token = try? ioStud.getSessionToken() else {
             throw IoStudError.missingToken
         }
         
-        let endpoint = "\(ioStud.getEndpointAPI())/studente/\(ioStud.getStudentID())?ingresso=\(token)"
+        let endpoint = "\(ioStud.getEndpointAPI())/appello/ricerca?ingresso=\(token)&tipoRicerca=4&criterio=\(exam.didacticModuleCode)&codiceCorso=\(exam.courseCode)&annoAccaAuto=\(student.academicYearOfCourse)"
         
         guard let url = URL(string: endpoint) else {
             throw RequestError.invalidURL(url: endpoint)
@@ -33,10 +34,10 @@ public class StudentBioHandler {
             throw RequestError.httpRequestError(code: httpResponse.statusCode)
         }
         
-        guard let jsonResponse = try? JSONDecoder().decode(StudentBioResponse.self, from: data) else {
+        guard let jsonResponse = try? JSONDecoder().decode(ReservationResponse.self, from: data) else {
             throw RequestError.jsonDecodingError
         }
         
-        return studentBioConverter(from: jsonResponse)
+        return reservationConverter(from: jsonResponse)
     }
 }

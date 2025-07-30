@@ -10,6 +10,7 @@ public class IoStud {
     lazy private var authenticator = AuthenticationHandler(ioStud: self)
     lazy private var examsHandler = ExamsHandler(ioStud: self)
     lazy private var studentBioHandler = StudentBioHandler(ioStud: self)
+    lazy private var reservationsHandler = ReservationsHandler(ioStud: self)
     
     public init(studentID: String, studentPwd: String) {
         self.studentID = studentID
@@ -33,6 +34,25 @@ public class IoStud {
         } catch {
             print("Unexpected error from login")
         }
+    }
+
+    public func retrieveAvailableReservations(for exam: ExamDoable, and student: StudentBio) async -> [Reservation]? {
+        do {
+            return try await reservationsHandler.requestAvailableReservations(for: exam, and: student)
+        } catch RequestError.invalidHTTPResponse {
+            print("Invalid HTTP response for available reservations")
+        } catch RequestError.invalidURL {
+            print("Invalid URL for available reservations")
+        } catch RequestError.jsonDecodingError {
+            print("Invalid data from available reservations request")
+        } catch RequestError.httpRequestError(let errCode) {
+            print("HTTP Request error, error code:\(errCode)")
+        } catch RequestError.infostudError(let info){
+            print("Invalid infostud response for available reservations request, message: \(info)")
+        } catch {
+            print("Unexpected error from available reservations request")
+        }
+        return nil
     }
     
     public func retrieveStudentBio() async -> StudentBio? {
