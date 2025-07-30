@@ -36,6 +36,25 @@ public class IoStud {
         }
     }
 
+    public func retrieveActiveReservations() async throws -> [Reservation]? {
+        do {
+            return try await reservationsHandler.requestActiveReservations()
+        } catch RequestError.invalidHTTPResponse {
+            print("Invalid HTTP response for active reservations")
+        } catch RequestError.invalidURL {
+            print("Invalid URL for active reservations")
+        } catch RequestError.jsonDecodingError {
+            print("Invalid data from active reservations request")
+        } catch RequestError.httpRequestError(let errCode) {
+            print("HTTP Request error, error code:\(errCode)")
+        } catch RequestError.infostudError(let info){
+            print("Invalid infostud response for active reservations request, message: \(info)")
+        } catch {
+            print("Unexpected error from active reservations request")
+        }
+        return nil
+    }
+
     public func retrieveAvailableReservations(for exam: ExamDoable, and student: StudentBio) async -> [Reservation]? {
         do {
             return try await reservationsHandler.requestAvailableReservations(for: exam, and: student)
