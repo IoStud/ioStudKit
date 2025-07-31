@@ -8,14 +8,14 @@ public class ReservationsHandler {
         self.ioStud = ioStud
     }
 
-    public func requestAvailableReservations(for exam: ExamDoable, and student: StudentBio) async throws -> [Reservation] {
-        
+public func requestAvailableReservations(for exam: ExamDoable) async throws -> [AvailableReservation] {
+        // Note: If no AvailableReservations are present, an empty array is returned
+
         guard let token = try? ioStud.getSessionToken() else {
             throw IoStudError.missingToken
         }
         
-        let endpoint = "\(ioStud.getEndpointAPI())/appello/ricerca?ingresso=\(token)&tipoRicerca=4&criterio=\(exam.didacticModuleCode)&codiceCorso=\(exam.courseCode)&annoAccaAuto=\(student.academicYearOfCourse)"
-        
+        let endpoint = "\(ioStud.getEndpointAPI())/appello/ricerca?ingresso=\(token)&codiceCorso=\(exam.courseCode)&criterio=\(exam.didacticModuleCode)&tipoRicerca=4"
         guard let url = URL(string: endpoint) else {
             throw RequestError.invalidURL(url: endpoint)
         }
@@ -23,7 +23,6 @@ public class ReservationsHandler {
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.setValue(ioStud.getUserAgent(), forHTTPHeaderField: "User-Agent")
-        
         let (data, response) = try await URLSession.shared.data(for: request)
         
         guard let httpResponse = response as? HTTPURLResponse else {
@@ -38,16 +37,17 @@ public class ReservationsHandler {
             throw RequestError.jsonDecodingError
         }
         
-        return reservationConverter(from: jsonResponse)
+        return availableReservationConverter(from: jsonResponse)
     }
 
-    public func requestActiveReservations() async throws -> [Reservation]{
+    public func requestActiveReservations() async throws -> [ActiveReservation]{
+        // Note: If no ActiveReservations are present, an empty array is returned
+        
         guard let token = try? ioStud.getSessionToken() else {
             throw IoStudError.missingToken
         }
         
         let endpoint = "\(ioStud.getEndpointAPI())/studente/\(ioStud.getStudentID())/prenotazioni?ingresso=\(token)"
-        
         guard let url = URL(string: endpoint) else {
             throw RequestError.invalidURL(url: endpoint)
         }
@@ -55,7 +55,6 @@ public class ReservationsHandler {
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.setValue(ioStud.getUserAgent(), forHTTPHeaderField: "User-Agent")
-        
         let (data, response) = try await URLSession.shared.data(for: request)
         
         guard let httpResponse = response as? HTTPURLResponse else {
@@ -70,7 +69,7 @@ public class ReservationsHandler {
             throw RequestError.jsonDecodingError
         }
         
-        return reservationConverter(from: jsonResponse)
+        return activeReservationConverter(from: jsonResponse)
     }
 
     public func insertReservation() {}

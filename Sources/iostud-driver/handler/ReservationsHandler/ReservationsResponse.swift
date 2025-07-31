@@ -6,60 +6,100 @@ public struct ReservationResponse: Codable {
     let ritorno: ReservationResponse.Ritorno
 
     struct Ritorno: Codable {
-        let prenotazioni: [Prenotazione]
+        let appelli: [Prenotazione]
     }
 
     struct Prenotazione: Codable {
         let codIdenVerb: Int
-        let canale: String
         let codAppe: Int
+        //let tipoPren: ANKNOWN?            //never used + unknown data type (Sting uded as a filler)
         let codCorsoStud: String
-        let descrizione: String
         let descCorsoStud: String
+        let descrizione: String
         let crediti: Int
+        let canale: String
         let docente: String
-        let annoAcca: String
         let facolta: String
-        let numeroPrenotazione: Int?
-        let ssd: String?
-        let dataprenotazione: String?
-        let note: String
+        let annoAcca: String
         let dataAppe: String?
+        let note: String
+        let numeroPrenotazione: Int?
+        let dataprenotazione: String?
         let dataInizioPrenotazione: String?
         let dataFinePrenotazione: String?
+        //let dataSeduta: String?           //never used
+        //let insegnamentoAuto: String?     //never used + unknown data type (Sting uded as a filler)
+        //let tipologiaAuto: String?        //never used + unknown data type (Sting uded as a filler)
+        //let questionario: Bool            //never used + unknown if it's optional or not
+        //let annualita: String?            //never used + unknown data type (Sting uded as a filler)
         let SiglaModuloDidattico: String?
-        //let modalitaSvolgimentoList: JSONARRAY (?)
-        let modalitaSvolgimento: String
+        let ssd: String?
+        //let diviSeduta: String?           //never used
+        //let noteCalendario: String?       //never used
+        //let noteTurno: String?            //never used
+        //let noteTurnoStud: String?        //never used
+        let modalitaSvolgimento: String?
+        let modalitaSvolgimentoList: [ModalitaSvolgimento]?
+    }
+    
+    struct ModalitaSvolgimento: Codable {
+        let tipoEsame : String
+        let descrizioneTipoEsame : String
     }
 }
 
-public func reservationConverter(from response: ReservationResponse) -> [Reservation] {
-    let values = response.ritorno.prenotazioni
-    var reservations = [Reservation]()
-    for response in values {
-        let reservation = Reservation (
-            codIdenVerb: response.codIdenVerb,
-            channel: response.canale,
-            codAppe: response.codAppe,
-            codCourseStud: response.codCorsoStud,
-            description: response.descrizione,
-            descCourseStud: response.descCorsoStud,
-            cfu: response.crediti,
-            teacher: response.docente,
-            accYear: response.annoAcca,
-            faculty: response.facolta,
-            prenotationNumber: response.numeroPrenotazione,
-            ssd: response.ssd,
-            prenotationDate: response.dataprenotazione,
-            notes: response.note,
-            appeDate: response.dataAppe,
-            startDatePrenotation: response.dataInizioPrenotazione,
-            endDatePrenotatation: response.dataFinePrenotazione,
-            didacticModuleInitials: response.SiglaModuloDidattico,
-            executionMode: response.modalitaSvolgimento
-        )
-        reservations.append(reservation)
+public func availableReservationConverter(from response: ReservationResponse) -> [AvailableReservation] {
+    var reservations = [AvailableReservation]()
+    for pren in response.ritorno.appelli {
+        
+        var executionModeList = [AvailableReservation.ExecutionMode]()
+        let modList = pren.modalitaSvolgimentoList ?? []
+        for mod in modList {
+            executionModeList.append(AvailableReservation.ExecutionMode(examType: mod.tipoEsame, examTypeDescription:mod.descrizioneTipoEsame))
+        }
+        
+        reservations.append(AvailableReservation(codIdenVerb: pren.codIdenVerb,
+                                                 codAppe: pren.codAppe,
+                                                 codCourseStud: pren.descCorsoStud,
+                                                 descCourseStud: pren.descCorsoStud,
+                                                 courseName: pren.descrizione,
+                                                 cfu: pren.crediti,
+                                                 channel: pren.canale,
+                                                 teacher: pren.docente,
+                                                 faculty: pren.facolta,
+                                                 accYear: pren.annoAcca,
+                                                 appealDate: pren.dataAppe ?? "",
+                                                 notes: pren.note,
+                                                 startDatePrenotation: pren.dataInizioPrenotazione ?? "",
+                                                 endDatePrenotatation: pren.dataFinePrenotazione ?? "",
+                                                 didacticModuleCode: pren.SiglaModuloDidattico,
+                                                 executionModeList: executionModeList
+                                                ))
     }
-    
+    return reservations
+}
+
+public func activeReservationConverter(from response: ReservationResponse) -> [ActiveReservation] {
+    var reservations = [ActiveReservation]()
+    for pren in response.ritorno.appelli {
+        reservations.append(ActiveReservation(codIdenVerb: pren.codIdenVerb,
+                                              codAppe: pren.codAppe,
+                                              codCourseStud: pren.descCorsoStud,
+                                              descCourseStud: pren.descCorsoStud,
+                                              courseName: pren.descrizione,
+                                              cfu: pren.crediti,
+                                              channel: pren.canale,
+                                              teacher: pren.docente,
+                                              faculty: pren.facolta,
+                                              accYear: pren.annoAcca,
+                                              appealDate: pren.dataAppe ?? "",
+                                              notes: pren.note,
+                                              prenotationNumber: pren.numeroPrenotazione ?? -1,
+                                              prenotationDate: pren.dataprenotazione ?? "",
+                                              didacticModuleInitials: pren.SiglaModuloDidattico ?? "",
+                                              ssd: pren.ssd ?? "",
+                                              executionMode: pren.modalitaSvolgimento ?? ""
+                                             ))
+    }
     return reservations
 }

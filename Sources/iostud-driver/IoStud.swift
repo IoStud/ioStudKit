@@ -6,6 +6,7 @@ public class IoStud {
     private var studentID: String
     private var studentPwd: String
     private var sessionToken: String?
+    private var studentBio: StudentBio?
     
     lazy private var authenticator = AuthenticationHandler(ioStud: self)
     lazy private var examsHandler = ExamsHandler(ioStud: self)
@@ -17,10 +18,17 @@ public class IoStud {
         self.studentPwd = studentPwd
     }
     
+    // TODO: rimuovere catch da refreshSessionToken() e retrieveStudentBio() e getire gli errori in doLogin()
     public func doLogin() async {
+        await refreshSessionToken()
+        await retrieveStudentBio()
+    }
+    
+    // TODO: rimuovere catch fare throws
+    public func refreshSessionToken() async {
         do {
-            let loginResponse = try await authenticator.login()
-            self.sessionToken = loginResponse.result.tokeniws
+            let response = try await authenticator.login()
+            self.sessionToken = response.result.tokeniws
         } catch RequestError.invalidHTTPResponse {
             print("Invalid invalid HTTP Response for login")
         } catch RequestError.invalidURL {
@@ -35,48 +43,11 @@ public class IoStud {
             print("Unexpected error from login")
         }
     }
-
-    public func retrieveActiveReservations() async throws -> [Reservation]? {
-        do {
-            return try await reservationsHandler.requestActiveReservations()
-        } catch RequestError.invalidHTTPResponse {
-            print("Invalid HTTP response for active reservations")
-        } catch RequestError.invalidURL {
-            print("Invalid URL for active reservations")
-        } catch RequestError.jsonDecodingError {
-            print("Invalid data from active reservations request")
-        } catch RequestError.httpRequestError(let errCode) {
-            print("HTTP Request error, error code:\(errCode)")
-        } catch RequestError.infostudError(let info){
-            print("Invalid infostud response for active reservations request, message: \(info)")
-        } catch {
-            print("Unexpected error from active reservations request")
-        }
-        return nil
-    }
-
-    public func retrieveAvailableReservations(for exam: ExamDoable, and student: StudentBio) async -> [Reservation]? {
-        do {
-            return try await reservationsHandler.requestAvailableReservations(for: exam, and: student)
-        } catch RequestError.invalidHTTPResponse {
-            print("Invalid HTTP response for available reservations")
-        } catch RequestError.invalidURL {
-            print("Invalid URL for available reservations")
-        } catch RequestError.jsonDecodingError {
-            print("Invalid data from available reservations request")
-        } catch RequestError.httpRequestError(let errCode) {
-            print("HTTP Request error, error code:\(errCode)")
-        } catch RequestError.infostudError(let info){
-            print("Invalid infostud response for available reservations request, message: \(info)")
-        } catch {
-            print("Unexpected error from available reservations request")
-        }
-        return nil
-    }
     
-    public func retrieveStudentBio() async -> StudentBio? {
+    // TODO: rimuovere catch fare throws
+    public func retrieveStudentBio() async {
         do {
-            return try await studentBioHandler.requestStudentBio()
+            studentBio = try await studentBioHandler.requestStudentBio()
         } catch RequestError.invalidHTTPResponse {
             print("Invalid HTTP response for student Bio")
         } catch RequestError.invalidURL {
@@ -90,9 +61,8 @@ public class IoStud {
         } catch {
             print("Unexpected error from studentbio request")
         }
-        return nil
     }
-    
+
     // TODO: Controllare che ci sia il token / ancora valido
     public func retrieveDoneExams() async -> [ExamDone]? {
         do {
@@ -133,6 +103,44 @@ public class IoStud {
         return nil
     }
     
+    public func retrieveActiveReservations() async -> [ActiveReservation]? {
+        do {
+            return try await reservationsHandler.requestActiveReservations()
+        } catch RequestError.invalidHTTPResponse {
+            print("Invalid HTTP response for active reservations")
+        } catch RequestError.invalidURL {
+            print("Invalid URL for active reservations")
+        } catch RequestError.jsonDecodingError {
+            print("Invalid data from active reservations request")
+        } catch RequestError.httpRequestError(let errCode) {
+            print("HTTP Request error, error code:\(errCode)")
+        } catch RequestError.infostudError(let info){
+            print("Invalid infostud response for active reservations request, message: \(info)")
+        } catch {
+            print("Unexpected error from active reservations request")
+        }
+        return nil
+    }
+
+    public func retrieveAvailableReservations(for examDoable: ExamDoable) async -> [AvailableReservation]? {
+        do {
+            return try await reservationsHandler.requestAvailableReservations(for: examDoable)
+        } catch RequestError.invalidHTTPResponse {
+            print("Invalid HTTP response for available reservations")
+        } catch RequestError.invalidURL {
+            print("Invalid URL for available reservations")
+        } catch RequestError.jsonDecodingError {
+            print("Invalid data from available reservations request")
+        } catch RequestError.httpRequestError(let errCode) {
+            print("HTTP Request error, error code:\(errCode)")
+        } catch RequestError.infostudError(let info){
+            print("Invalid infostud response for available reservations request, message: \(info)")
+        } catch {
+            print("Unexpected error from available reservations request")
+        }
+        return nil
+    }
+    
     public func getStudentID() -> String {
         return self.studentID
     }
@@ -149,6 +157,14 @@ public class IoStud {
         }
     }
     
+    public func getStudentBio() throws -> StudentBio {
+        if let studentBio = self.studentBio {
+            return studentBio
+        } else {
+            throw IoStudError.missingStudentBio
+        }
+    }
+    
     public func getEndpointLogin() -> String {
         return self.endpointLogin
     }
@@ -160,8 +176,12 @@ public class IoStud {
     public func getUserAgent() -> String {
         return self.userAgent
     }
+    
+    public func setSessionToken(sessionToken: String) {
+        self.sessionToken = sessionToken
+    }
 }
 
 public enum IoStudError: Error {
-    case missingToken
+    case missingToken, missingStudentBio
 }
