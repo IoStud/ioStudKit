@@ -7,8 +7,11 @@ public class ExamsHandler {
     public init(ioStud: IoStud) {
         self.ioStud = ioStud
     }
-
+    
+    
+    
     public func requestDoneExams() async throws -> [ExamDone] {
+        // Note: If no DoneExams are present, an empty array is returned
         
         guard let token = try? ioStud.getSessionToken() else {
             throw IoStudError.missingToken
@@ -42,6 +45,7 @@ public class ExamsHandler {
     }
     
     public func requestDoableExams() async throws -> [ExamDoable] {
+        // Note: If no DoableExams are present, an empty array is returned
         
         guard let token = try? ioStud.getSessionToken() else {
             throw IoStudError.missingToken

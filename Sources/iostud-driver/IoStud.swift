@@ -141,6 +141,28 @@ public class IoStud {
         return nil
     }
     
+    public func insertReservation(for avRes: AvailableReservation, attendingMode: AvailableReservation.AttendingMode) async {
+        do {
+            let response = try await reservationsHandler.insertReservationRequest(for: avRes, attendingMode: attendingMode)
+            if response.urlOpis != nil {
+                print("Do opis before reservation, url: \(response.urlOpis)")
+            }
+        } catch RequestError.invalidHTTPResponse {
+            print("Invalid HTTP response for available reservations")
+            
+        } catch RequestError.invalidURL {
+            print("Invalid URL for available reservations")
+        } catch RequestError.jsonDecodingError {
+            print("Invalid data from available reservations request")
+        } catch RequestError.httpRequestError(let errCode) {
+            print("HTTP Request error, error code:\(errCode)")
+        } catch RequestError.infostudError(let info){
+            print("Invalid infostud response for available reservations request, message: \(info)")
+        } catch {
+            print("Unexpected error from available reservations request")
+        }
+    }
+    
     public func getStudentID() -> String {
         return self.studentID
     }

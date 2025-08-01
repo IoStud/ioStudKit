@@ -52,10 +52,10 @@ public func availableReservationConverter(from response: ReservationResponse) ->
     var reservations = [AvailableReservation]()
     for pren in response.ritorno.appelli {
         
-        var executionModeList = [AvailableReservation.ExecutionMode]()
+        var attendingModeList = [AvailableReservation.AttendingMode]()
         let modList = pren.modalitaSvolgimentoList ?? []
         for mod in modList {
-            executionModeList.append(AvailableReservation.ExecutionMode(examType: mod.tipoEsame, examTypeDescription:mod.descrizioneTipoEsame))
+            attendingModeList.append(AvailableReservation.AttendingMode(examType: mod.tipoEsame, examTypeDescription:mod.descrizioneTipoEsame))
         }
         
         reservations.append(AvailableReservation(codIdenVerb: pren.codIdenVerb,
@@ -73,7 +73,7 @@ public func availableReservationConverter(from response: ReservationResponse) ->
                                                  startDatePrenotation: pren.dataInizioPrenotazione ?? "",
                                                  endDatePrenotatation: pren.dataFinePrenotazione ?? "",
                                                  didacticModuleCode: pren.SiglaModuloDidattico,
-                                                 executionModeList: executionModeList
+                                                 AttendingModeList: attendingModeList
                                                 ))
     }
     return reservations

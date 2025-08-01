@@ -14,9 +14,9 @@ public struct AvailableReservation {
     let startDatePrenotation: String
     let endDatePrenotatation: String
     let didacticModuleCode: String?
-    let executionModeList: [ExecutionMode]
+    let AttendingModeList: [AttendingMode]
     
-    public struct ExecutionMode {
+    public struct AttendingMode: Equatable {
         let examType: String
         let examTypeDescription: String
     }

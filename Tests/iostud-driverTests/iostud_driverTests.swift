@@ -127,3 +127,32 @@ import Testing
         print("----- ----- -----")
     }
 }
+
+@Test func testInsertReservation() async throws {
+    let ioStud = IoStud(studentID: secret_maticola , studentPwd: secret_pw)
+    
+    if secret_token.isEmpty {
+        print("Error: Missing session token\n - Follow instructions in how_to_test.md to generate a session token")
+    } else {
+        ioStud.setSessionToken(sessionToken: secret_token)
+    }
+    
+    guard let availableReservations = await ioStud.retrieveActiveReservations() else {
+        print("Error while fetching available reservations")
+        return
+    }
+    
+    var counter = 0
+    for reservation in availableReservations {
+        print("Reservation: \(counter): \(reservation)")
+        print("----- ----- -----")
+    }
+    
+    print("Please enter a number:", terminator: " ")
+    guard let line = readLine(),
+          let number = Int(line)
+    else {
+        print("Invalid input—please enter a valid integer.")
+        return
+    }
+}

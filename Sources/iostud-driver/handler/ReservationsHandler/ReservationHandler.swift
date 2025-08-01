@@ -72,7 +72,41 @@ public func requestAvailableReservations(for exam: ExamDoable) async throws -> [
         return activeReservationConverter(from: jsonResponse)
     }
 
-    public func insertReservation() {}
+    public func insertReservationRequest(for avRes: AvailableReservation, attendingMode: AvailableReservation.AttendingMode) async throws -> InsertReservationResponse {
+        guard let token = try? ioStud.getSessionToken() else {
+            throw IoStudError.missingToken
+        }
+        
+        if !avRes.AttendingModeList.contains(attendingMode) {
+            print("errore, seleziona un attendingMode disponibile, per l'esame selezionato")
+        }
+        
+        let endpoint = "\(ioStud.getEndpointAPI())/prenotazione/\(avRes.codIdenVerb)/\(avRes.codAppe)/\(avRes.codCourseStud)/\(attendingMode.examTypeDescription)/?ingresso=\(token)"
+        guard let url = URL(string: endpoint) else {
+            throw RequestError.invalidURL(url: endpoint)
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type") // set Content-Type to JSON body (even if empty)
+        request.httpBody = Data() // empty body
+        request.setValue(ioStud.getUserAgent(), forHTTPHeaderField: "User-Agent")
+        let (data, response) = try await URLSession.shared.data(for: request)
 
-    public func deleteReservation() {}
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw RequestError.invalidHTTPResponse
+        }
+        
+        guard (200...299).contains(httpResponse.statusCode) else {
+            throw RequestError.httpRequestError(code: httpResponse.statusCode)
+        }
+        
+        guard let jsonResponse = try? JSONDecoder().decode(InsertReservationResponse.self, from: data) else {
+            throw RequestError.jsonDecodingError
+        }
+        
+        return jsonResponse
+    }
+
+    public func deleteReservation(for activeReservation: ActiveReservation) async throws {}
 }
