@@ -2,7 +2,7 @@ import Testing
 @testable import iostud_driver
 
 @Test func sessionTokenGenerator() async {
-    let ioStud = IoStud(studentID: secret_maticola , studentPwd: secret_pw)
+    let ioStud = IoStud(studentID: secret_maticola , studentPassword: secret_pw)
     await ioStud.refreshSessionToken()
     guard let token = try? ioStud.getSessionToken() else {
         print("Error while getting session token")
@@ -13,18 +13,17 @@ import Testing
 }
 
 @Test func testStudentBio() async throws {
-    let ioStud = IoStud(studentID: secret_maticola , studentPwd: secret_pw)
+    let ioStud = IoStud(studentID: secret_maticola , studentPassword: secret_pw)
     
     if secret_token.isEmpty {
         print("Error: Missing session token\n - Follow instructions in how_to_test.md to generate a session token")
     } else {
-        ioStud.setSessionToken(sessionToken: secret_token)
+        ioStud.setSessionToken(token: secret_token)
     }
     
-    await ioStud.retrieveStudentBio()
     
-    guard let bio = try? ioStud.getStudentBio() else {
-        print("Errore bio")
+    guard let bio = await ioStud.retrieveStudentBio() else {
+        print("Error while fetching student bio")
         return
     }
     
@@ -32,12 +31,12 @@ import Testing
 }
 
 @Test func testDoneExams() async throws {
-    let ioStud = IoStud(studentID: secret_maticola , studentPwd: secret_pw)
+    let ioStud = IoStud(studentID: secret_maticola , studentPassword: secret_pw)
     
     if secret_token.isEmpty {
         print("Error: Missing session token\n - Follow instructions in how_to_test.md to generate a session token")
     } else {
-        ioStud.setSessionToken(sessionToken: secret_token)
+        ioStud.setSessionToken(token: secret_token)
     }
     
     guard let doneExams = await ioStud.retrieveDoneExams() else {
@@ -53,12 +52,12 @@ import Testing
 }
 
 @Test func testDoableExams() async throws {
-    let ioStud = IoStud(studentID: secret_maticola , studentPwd: secret_pw)
+    let ioStud = IoStud(studentID: secret_maticola , studentPassword: secret_pw)
     
     if secret_token.isEmpty {
         print("Error: Missing session token\n - Follow instructions in how_to_test.md to generate a session token")
     } else {
-        ioStud.setSessionToken(sessionToken: secret_token)
+        ioStud.setSessionToken(token: secret_token)
     }
     
     guard let doableExams = await ioStud.retrieveDoableExams() else {
@@ -74,12 +73,12 @@ import Testing
 }
 
 @Test func testAvailableReservations() async throws {
-    let ioStud = IoStud(studentID: secret_maticola , studentPwd: secret_pw)
+    let ioStud = IoStud(studentID: secret_maticola , studentPassword: secret_pw)
     
     if secret_token.isEmpty {
         print("Error: Missing session token\n - Follow instructions in how_to_test.md to generate a session token")
     } else {
-        ioStud.setSessionToken(sessionToken: secret_token)
+        ioStud.setSessionToken(token: secret_token)
     }
     
     guard let doableExams = await ioStud.retrieveDoableExams() else {
@@ -109,12 +108,12 @@ import Testing
 }
 
 @Test func testActiveReservations() async throws {
-    let ioStud = IoStud(studentID: secret_maticola , studentPwd: secret_pw)
+    let ioStud = IoStud(studentID: secret_maticola , studentPassword: secret_pw)
     
     if secret_token.isEmpty {
         print("Error: Missing session token\n - Follow instructions in how_to_test.md to generate a session token")
     } else {
-        ioStud.setSessionToken(sessionToken: secret_token)
+        ioStud.setSessionToken(token: secret_token)
     }
     
     guard let availableReservations = await ioStud.retrieveActiveReservations() else {
@@ -129,12 +128,12 @@ import Testing
 }
 
 @Test func testInsertReservation() async throws {
-    let ioStud = IoStud(studentID: secret_maticola , studentPwd: secret_pw)
+    let ioStud = IoStud(studentID: secret_maticola , studentPassword: secret_pw)
     
     if secret_token.isEmpty {
         print("Error: Missing session token\n - Follow instructions in how_to_test.md to generate a session token")
     } else {
-        ioStud.setSessionToken(sessionToken: secret_token)
+        ioStud.setSessionToken(token: secret_token)
     }
     
     guard let availableReservations = await ioStud.retrieveActiveReservations() else {

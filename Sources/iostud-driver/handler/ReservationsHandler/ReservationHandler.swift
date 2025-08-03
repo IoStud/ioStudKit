@@ -1,5 +1,7 @@
 import Foundation
-//import FoundationNetworking
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 public class ReservationsHandler {
     private var ioStud: IoStud
@@ -15,14 +17,14 @@ public func requestAvailableReservations(for exam: ExamDoable) async throws -> [
             throw IoStudError.missingToken
         }
         
-        let endpoint = "\(ioStud.getEndpointAPI())/appello/ricerca?ingresso=\(token)&codiceCorso=\(exam.courseCode)&criterio=\(exam.didacticModuleCode)&tipoRicerca=4"
+        let endpoint = "\(ioStud.ENDPOINT_API)/appello/ricerca?ingresso=\(token)&codiceCorso=\(exam.courseCode)&criterio=\(exam.didacticModuleCode)&tipoRicerca=4"
         guard let url = URL(string: endpoint) else {
             throw RequestError.invalidURL(url: endpoint)
         }
         
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
-        request.setValue(ioStud.getUserAgent(), forHTTPHeaderField: "User-Agent")
+        request.setValue(ioStud.USER_AGENT, forHTTPHeaderField: "User-Agent")
         let (data, response) = try await URLSession.shared.data(for: request)
         
         guard let httpResponse = response as? HTTPURLResponse else {
@@ -47,14 +49,14 @@ public func requestAvailableReservations(for exam: ExamDoable) async throws -> [
             throw IoStudError.missingToken
         }
         
-        let endpoint = "\(ioStud.getEndpointAPI())/studente/\(ioStud.getStudentID())/prenotazioni?ingresso=\(token)"
+        let endpoint = "\(ioStud.ENDPOINT_API)/studente/\(ioStud.STUDENT_ID)/prenotazioni?ingresso=\(token)"
         guard let url = URL(string: endpoint) else {
             throw RequestError.invalidURL(url: endpoint)
         }
         
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
-        request.setValue(ioStud.getUserAgent(), forHTTPHeaderField: "User-Agent")
+        request.setValue(ioStud.USER_AGENT, forHTTPHeaderField: "User-Agent")
         let (data, response) = try await URLSession.shared.data(for: request)
         
         guard let httpResponse = response as? HTTPURLResponse else {
@@ -81,7 +83,7 @@ public func requestAvailableReservations(for exam: ExamDoable) async throws -> [
             print("errore, seleziona un attendingMode disponibile, per l'esame selezionato")
         }
         
-        let endpoint = "\(ioStud.getEndpointAPI())/prenotazione/\(avRes.codIdenVerb)/\(avRes.codAppe)/\(avRes.codCourseStud)/\(attendingMode.examTypeDescription)/?ingresso=\(token)"
+        let endpoint = "\(ioStud.ENDPOINT_API)/prenotazione/\(avRes.codIdenVerb)/\(avRes.codAppe)/\(avRes.codCourseStud)/\(attendingMode.examTypeDescription)/?ingresso=\(token)"
         guard let url = URL(string: endpoint) else {
             throw RequestError.invalidURL(url: endpoint)
         }
@@ -90,7 +92,7 @@ public func requestAvailableReservations(for exam: ExamDoable) async throws -> [
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type") // set Content-Type to JSON body (even if empty)
         request.httpBody = Data() // empty body
-        request.setValue(ioStud.getUserAgent(), forHTTPHeaderField: "User-Agent")
+        request.setValue(ioStud.USER_AGENT, forHTTPHeaderField: "User-Agent")
         let (data, response) = try await URLSession.shared.data(for: request)
 
         guard let httpResponse = response as? HTTPURLResponse else {

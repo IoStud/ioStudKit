@@ -1,5 +1,7 @@
 import Foundation
-//import FoundationNetworking
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 public class ExamsHandler {
     private var ioStud: IoStud
@@ -8,8 +10,6 @@ public class ExamsHandler {
         self.ioStud = ioStud
     }
     
-    
-    
     public func requestDoneExams() async throws -> [ExamDone] {
         // Note: If no DoneExams are present, an empty array is returned
         
@@ -17,7 +17,7 @@ public class ExamsHandler {
             throw IoStudError.missingToken
         }
         
-        let endpoint = "\(ioStud.getEndpointAPI())/studente/\(ioStud.getStudentID())/esamiall?ingresso=\(token)"
+        let endpoint = "\(ioStud.ENDPOINT_API)/studente/\(ioStud.STUDENT_ID)/esamiall?ingresso=\(token)"
         
         guard let url = URL(string: endpoint) else {
             throw RequestError.invalidURL(url: endpoint)
@@ -25,7 +25,7 @@ public class ExamsHandler {
         
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
-        request.setValue(ioStud.getUserAgent(), forHTTPHeaderField: "User-Agent")
+        request.setValue(ioStud.USER_AGENT, forHTTPHeaderField: "User-Agent")
         
         let (data, response) = try await URLSession.shared.data(for: request)
         
@@ -51,7 +51,7 @@ public class ExamsHandler {
             throw IoStudError.missingToken
         }
         
-        let endpoint = "\(ioStud.getEndpointAPI())/studente/\(ioStud.getStudentID())/insegnamentisostenibili?ingresso=\(token)"
+        let endpoint = "\(ioStud.ENDPOINT_API)/studente/\(ioStud.STUDENT_ID)/insegnamentisostenibili?ingresso=\(token)"
         
         guard let url = URL(string: endpoint) else {
             throw RequestError.invalidURL(url: endpoint)
@@ -59,7 +59,7 @@ public class ExamsHandler {
         
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
-        request.setValue(ioStud.getUserAgent(), forHTTPHeaderField: "User-Agent")
+        request.setValue(ioStud.USER_AGENT, forHTTPHeaderField: "User-Agent")
         
         let (data, response) = try await URLSession.shared.data(for: request)
         

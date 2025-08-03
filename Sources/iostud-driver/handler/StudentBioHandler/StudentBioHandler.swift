@@ -1,5 +1,7 @@
 import Foundation
-//import FoundationNetworking
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 public class StudentBioHandler {
     private let ioStud: IoStud
@@ -13,7 +15,7 @@ public class StudentBioHandler {
             throw IoStudError.missingToken
         }
         
-        let endpoint = "\(ioStud.getEndpointAPI())/studente/\(ioStud.getStudentID())?ingresso=\(token)"
+        let endpoint = "\(ioStud.ENDPOINT_API)/studente/\(ioStud.STUDENT_ID)?ingresso=\(token)"
         
         guard let url = URL(string: endpoint) else {
             throw RequestError.invalidURL(url: endpoint)
@@ -21,7 +23,7 @@ public class StudentBioHandler {
         
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
-        request.setValue(ioStud.getUserAgent(), forHTTPHeaderField: "User-Agent")
+        request.setValue(ioStud.USER_AGENT, forHTTPHeaderField: "User-Agent")
         
         let (data, response) = try await URLSession.shared.data(for: request)
         
