@@ -3,10 +3,11 @@ public class IoStud {
     public let ENDPOINT_API: String = "https://www.studenti.uniroma1.it/phoenixws"
     public let USER_AGENT: String = "Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/81.0"
     public let STUDENT_ID: String
+    public let MAX_TRIES = 3
     
     private let password: String
     
-    lazy private var authenticationHandle =  AuthenticationHandler(ioStud: self, password: password)
+    lazy private var authenticationHandler =  AuthenticationHandler(ioStud: self, password: password)
     lazy private var examsHandler = ExamsHandler(ioStud: self)
     lazy private var studentBioHandler = StudentBioHandler(ioStud: self)
     lazy private var reservationsHandler = ReservationsHandler(ioStud: self)
@@ -24,7 +25,7 @@ public class IoStud {
     // TODO: rimuovere catch fare throws
     public func refreshSessionToken() async {
         do {
-            try await authenticationHandle.login()
+            try await authenticationHandler.login()
         } catch RequestError.invalidHTTPResponse {
             print("Invalid invalid HTTP Response for login")
         } catch RequestError.invalidURL {
@@ -35,27 +36,44 @@ public class IoStud {
             print("HTTP Request error, error code:\(errCode)")
         } catch RequestError.infostudError(let info){
             print("Invalid infostud response for login, message: \(info)")
-        } catch {
+        } catch IoStudError.passwordInvalid {
+            print("Invalid password")
+        } catch { 
             print("Unexpected error from login")
         }
     }
     
     // TODO: rimuovere catch fare throws
     public func retrieveStudentBio() async -> StudentBio? {
-        do {
-            return try await studentBioHandler.requestStudentBio()
-        } catch RequestError.invalidHTTPResponse {
-            print("Invalid HTTP response for student Bio")
-        } catch RequestError.invalidURL {
-            print("Invalid URL for studentbio")
-        } catch RequestError.jsonDecodingError {
-            print("Invalid data from studentbio request")
-        } catch RequestError.httpRequestError(let errCode) {
-            print("HTTP Request error, error code:\(errCode)")
-        } catch RequestError.infostudError(let info){
-            print("Invalid infostud response for student bio request, message: \(info)")
-        } catch {
-            print("Unexpected error from studentbio request")
+        var count = 0
+        while (true) {
+            do {
+                if (count > 0) {
+                    await refreshSessionToken() 
+                }
+                return try await studentBioHandler.requestStudentBio()
+            } catch RequestError.invalidHTTPResponse {
+                count += 1
+                if (count == self.MAX_TRIES) {
+                    //throw IoStudError.notWorking
+                    print("Infostud not working")
+                }
+            } catch RequestError.invalidURL {
+                print("Invalid URL for studentbio")
+                break
+            } catch RequestError.jsonDecodingError {
+                print("Invalid data from studentbio request")
+                break
+            } catch RequestError.httpRequestError(let errCode) {
+                print("HTTP Request error, error code:\(errCode)")
+                break
+            } catch RequestError.infostudError(let info) {
+                print("Invalid infostud response for student bio request, message: \(info)")
+                break
+            } catch {
+                print("Unexpected error from studentbio request")
+                break
+            }
         }
         return nil
     }
@@ -146,7 +164,6 @@ public class IoStud {
             }
         } catch RequestError.invalidHTTPResponse {
             print("Invalid HTTP response for insert reservation")
-            
         } catch RequestError.invalidURL {
             print("Invalid URL for insert reservation")
         } catch RequestError.jsonDecodingError {
@@ -161,19 +178,11 @@ public class IoStud {
     }
     
     public func getSessionToken() throws -> String {
-        do {
-            return try authenticationHandle.getToken()
-        } catch IoStudError.missingToken {
-            throw IoStudError.missingToken
-        }
+        return try authenticationHandler.getToken()
     }
     
     //TODO: to remove before official release, used only for testing
     public func setSessionToken(token: String) {
-        authenticationHandle.setSessionToken(token: token)
+        authenticationHandler.setSessionToken(token: token)
     }
-}
-
-public enum IoStudError: Error {
-    case missingToken
 }

@@ -42,9 +42,24 @@ public class AuthenticationHandler {
         guard (200...299).contains(httpResponse.statusCode) else {
             throw RequestError.httpRequestError(code: httpResponse.statusCode)
         }
+
+        guard !(401 == httpResponse.statusCode) else {
+            throw IoStudError.passwordInvalid
+        }
         
         guard let authResponse = try? JSONDecoder().decode(AuthResponse.self, from: data) else {
             throw RequestError.jsonDecodingError
+        }
+
+        switch authResponse.error.code {
+            case "auth110", "auth500":
+                throw RequestError.infostudError(info: "Infostud is not working as intended")
+            case "auth151":
+                throw RequestError.infostudError(info: "User is not enabled to use Infostud service") 
+            case "0":
+                break
+            default:
+                throw RequestError.infostudError(info: "Infostud is not working as expected")
         }
         
         self.token = authResponse.result.tokeniws
@@ -53,9 +68,8 @@ public class AuthenticationHandler {
     public func getToken() throws -> String{
         if let currentToken = token {
             return currentToken
-        } else {
-            throw IoStudError.missingToken
-        }
+        } 
+        throw IoStudError.missingToken
     }
     
     //TODO: to remove before official release, used only for testing

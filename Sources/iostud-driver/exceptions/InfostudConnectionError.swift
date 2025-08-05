@@ -7,3 +7,9 @@ public enum RequestError: Error {
     case jsonDecodingError
     case infostudError(info: String)
 }
+
+public enum IoStudError: Error {
+    case missingToken
+    case passwordInvalid
+    case notWorking
+}
