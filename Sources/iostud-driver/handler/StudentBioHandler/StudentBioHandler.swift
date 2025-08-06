@@ -11,11 +11,8 @@ public class StudentBioHandler {
     }
     
     public func requestStudentBio() async throws -> StudentBio {
-        guard let token = try? ioStud.getSessionToken() else {
-            throw IoStudError.missingToken
-        }
         
-        let endpoint = "\(ioStud.ENDPOINT_API)/studente/\(ioStud.STUDENT_ID)?ingresso=\(token)"
+        let endpoint = "\(ioStud.ENDPOINT_API)/studente/\(ioStud.STUDENT_ID)?ingresso=\(ioStud.getSessionToken())"
         
         guard let url = URL(string: endpoint) else {
             throw RequestError.invalidURL(url: endpoint)

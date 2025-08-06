@@ -9,7 +9,7 @@ public enum RequestError: Error {
 }
 
 public enum IoStudError: Error {
-    case missingToken
-    case passwordInvalid
+    case invalidPassword
+    case invalidUsername
     case notWorking
 }

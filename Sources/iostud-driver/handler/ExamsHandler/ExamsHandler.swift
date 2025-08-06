@@ -13,11 +13,7 @@ public class ExamsHandler {
     public func requestDoneExams() async throws -> [ExamDone] {
         // Note: If no DoneExams are present, an empty array is returned
         
-        guard let token = try? ioStud.getSessionToken() else {
-            throw IoStudError.missingToken
-        }
-        
-        let endpoint = "\(ioStud.ENDPOINT_API)/studente/\(ioStud.STUDENT_ID)/esamiall?ingresso=\(token)"
+        let endpoint = "\(ioStud.ENDPOINT_API)/studente/\(ioStud.STUDENT_ID)/esamiall?ingresso=\(ioStud.getSessionToken())"
         
         guard let url = URL(string: endpoint) else {
             throw RequestError.invalidURL(url: endpoint)
@@ -47,11 +43,7 @@ public class ExamsHandler {
     public func requestDoableExams() async throws -> [ExamDoable] {
         // Note: If no DoableExams are present, an empty array is returned
         
-        guard let token = try? ioStud.getSessionToken() else {
-            throw IoStudError.missingToken
-        }
-        
-        let endpoint = "\(ioStud.ENDPOINT_API)/studente/\(ioStud.STUDENT_ID)/insegnamentisostenibili?ingresso=\(token)"
+        let endpoint = "\(ioStud.ENDPOINT_API)/studente/\(ioStud.STUDENT_ID)/insegnamentisostenibili?ingresso=\(ioStud.getSessionToken())"
         
         guard let url = URL(string: endpoint) else {
             throw RequestError.invalidURL(url: endpoint)

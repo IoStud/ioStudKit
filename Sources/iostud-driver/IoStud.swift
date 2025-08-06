@@ -17,11 +17,6 @@ public class IoStud {
         self.password = studentPassword
     }
     
-    // TODO: rimuovere catch da refreshSessionToken() e retrieveStudentBio() e getire gli errori in doLogin()
-    public func doLogin() async {
-        await refreshSessionToken()
-    }
-    
     // TODO: rimuovere catch fare throws
     public func refreshSessionToken() async {
         do {
@@ -36,9 +31,11 @@ public class IoStud {
             print("HTTP Request error, error code:\(errCode)")
         } catch RequestError.infostudError(let info){
             print("Invalid infostud response for login, message: \(info)")
-        } catch IoStudError.passwordInvalid {
+        } catch IoStudError.invalidPassword {
             print("Invalid password")
-        } catch { 
+        } catch IoStudError.invalidUsername {
+            print("Invalid user name")
+        } catch {
             print("Unexpected error from login")
         }
     }
@@ -177,8 +174,8 @@ public class IoStud {
         }
     }
     
-    public func getSessionToken() throws -> String {
-        return try authenticationHandler.getToken()
+    public func getSessionToken() -> String {
+        return authenticationHandler.getToken()
     }
     
     //TODO: to remove before official release, used only for testing

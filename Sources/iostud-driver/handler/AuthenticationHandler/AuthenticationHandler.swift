@@ -6,7 +6,7 @@ import FoundationNetworking
 public class AuthenticationHandler {
     private let ioStud: IoStud
     private var password: String
-    private var token: String?
+    private var token: String!
     
     public init(ioStud: IoStud, password: String) {
         self.ioStud = ioStud
@@ -39,14 +39,18 @@ public class AuthenticationHandler {
             throw RequestError.invalidHTTPResponse
         }
         
+        guard !(401 == httpResponse.statusCode) else {
+            throw IoStudError.invalidPassword
+        }
+        
+        guard !(404 == httpResponse.statusCode) else {
+            throw IoStudError.invalidUsername
+        }
+        
         guard (200...299).contains(httpResponse.statusCode) else {
             throw RequestError.httpRequestError(code: httpResponse.statusCode)
         }
 
-        guard !(401 == httpResponse.statusCode) else {
-            throw IoStudError.passwordInvalid
-        }
-        
         guard let authResponse = try? JSONDecoder().decode(AuthResponse.self, from: data) else {
             throw RequestError.jsonDecodingError
         }
@@ -65,11 +69,10 @@ public class AuthenticationHandler {
         self.token = authResponse.result.tokeniws
     }
     
-    public func getToken() throws -> String{
-        if let currentToken = token {
-            return currentToken
-        } 
-        throw IoStudError.missingToken
+    public func getToken() -> String {
+        // This will crash only if you call getToken() before login
+        precondition(token != nil, "getToken() called before login")
+        return token!
     }
     
     //TODO: to remove before official release, used only for testing

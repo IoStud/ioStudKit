@@ -1,15 +1,12 @@
 import Testing
 @testable import iostud_driver
 
-@Test func sessionTokenGenerator() async {
+@Test func sessionTokenGenerator() async throws {
     let ioStud = IoStud(studentID: secret_maticola , studentPassword: secret_pw)
-    await ioStud.refreshSessionToken()
-    guard let token = try? ioStud.getSessionToken() else {
-        print("Error while getting session token")
-        return
-    }
     
-    print("Token: \(token) <--- copy this token and paste it into the secret_token empty string in secret.swift")
+    await ioStud.refreshSessionToken()
+    
+    print("Token: \(ioStud.getSessionToken()) <--- copy this token and paste it into the secret_token empty string in secret.swift")
 }
 
 @Test func testStudentBio() async throws {
@@ -20,7 +17,6 @@ import Testing
     } else {
         ioStud.setSessionToken(token: secret_token)
     }
-    
     
     guard let bio = await ioStud.retrieveStudentBio() else {
         print("Error while fetching student bio")
@@ -72,41 +68,6 @@ import Testing
     }
 }
 
-@Test func testAvailableReservations() async throws {
-    let ioStud = IoStud(studentID: secret_maticola , studentPassword: secret_pw)
-    
-    if secret_token.isEmpty {
-        print("Error: Missing session token\n - Follow instructions in how_to_test.md to generate a session token")
-    } else {
-        ioStud.setSessionToken(token: secret_token)
-    }
-    
-    guard let doableExams = await ioStud.retrieveDoableExams() else {
-        print("Error while fetching doable exams")
-        return
-    }
-    
-    if doableExams.isEmpty {
-        print("no doable exams")
-        return
-    }
-    
-    let exam = doableExams[0]
-    print("course code:" + exam.courseCode)
-    print("didactic module:" + exam.didacticModuleCode)
-    
-    guard let availableReservations = await ioStud.retrieveAvailableReservations(for: exam ) else {
-        print("Error while fetching available reservations")
-        return
-    }
-
-    print("\n\n---------------- AVAILABLE RESERVATIONS for \(exam.courseName) ----------------")
-    for reservation in availableReservations {
-        print(reservation)
-        print("----- ----- -----")
-    }
-}
-
 @Test func testActiveReservations() async throws {
     let ioStud = IoStud(studentID: secret_maticola , studentPassword: secret_pw)
     
@@ -126,6 +87,39 @@ import Testing
         print("----- ----- -----")
     }
 }
+
+@Test func testAvailableReservations() async throws {
+    let ioStud = IoStud(studentID: secret_maticola , studentPassword: secret_pw)
+    
+    if secret_token.isEmpty {
+        print("Error: Missing session token\n - Follow instructions in how_to_test.md to generate a session token")
+    } else {
+        ioStud.setSessionToken(token: secret_token)
+    }
+    
+    guard let doableExams = await ioStud.retrieveDoableExams() else {
+        print("Error while fetching doable exams")
+        return
+    }
+    var availableReservationList = [AvailableReservation]()
+    
+    for exam in doableExams {
+        guard let availableReservations = await ioStud.retrieveAvailableReservations(for: exam) else {
+            print("Error while fetching available reservations")
+            return
+        }
+        availableReservationList.append(contentsOf: availableReservations)
+    }
+    availableReservationList.sort(by: {$0.appealDate<$1.appealDate})
+    
+    var counter = 0
+    for reservation in availableReservationList {
+        print("Reservation \(counter):\n \t - corso:\(reservation.courseName)\n \t - canale:\(reservation.channel)\n \t - data:\(reservation.appealDate)\n \t - nota: \(reservation.notes ?? "")\n\(reservation)")
+        print("----- ----- -----\n")
+        counter += 1
+    }
+}
+
 
 @Test func testInsertReservation() async throws {
     let ioStud = IoStud(studentID: secret_maticola , studentPassword: secret_pw)
