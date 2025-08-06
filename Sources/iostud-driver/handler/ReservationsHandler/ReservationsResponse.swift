@@ -58,23 +58,25 @@ public func availableReservationConverter(from response: ReservationResponse) ->
             attendingModeList.append(AvailableReservation.AttendingMode(examType: mod.tipoEsame, examTypeDescription:mod.descrizioneTipoEsame))
         }
         
-        reservations.append(AvailableReservation(codIdenVerb: pren.codIdenVerb,
-                                                 codAppe: pren.codAppe,
-                                                 codCourseStud: pren.descCorsoStud,
-                                                 descCourseStud: pren.descCorsoStud,
-                                                 courseName: pren.descrizione,
-                                                 cfu: pren.crediti,
-                                                 channel: pren.canale,
-                                                 teacher: pren.docente,
-                                                 faculty: pren.facolta,
-                                                 accYear: pren.annoAcca,
-                                                 appealDate: pren.dataAppe ?? "",
-                                                 notes: pren.note,
-                                                 startDatePrenotation: pren.dataInizioPrenotazione ?? "",
-                                                 endDatePrenotatation: pren.dataFinePrenotazione ?? "",
-                                                 didacticModuleCode: pren.SiglaModuloDidattico,
-                                                 AttendingModeList: attendingModeList
-                                                ))
+        reservations.append(AvailableReservation(
+                codIdenVerb: pren.codIdenVerb,
+                codAppe: pren.codAppe,
+                codCourseStud: pren.descCorsoStud,
+                descCourseStud: pren.descCorsoStud,
+                courseName: pren.descrizione,
+                cfu: pren.crediti,
+                channel: pren.canale,
+                teacher: pren.docente,
+                faculty: pren.facolta,
+                accYear: pren.annoAcca,
+                appealDate: pren.dataAppe ?? "",
+                notes: pren.note,
+                startDatePrenotation: pren.dataInizioPrenotazione ?? "",
+                endDatePrenotatation: pren.dataFinePrenotazione ?? "",
+                didacticModuleCode: pren.SiglaModuloDidattico,
+                AttendingModeList: attendingModeList
+            )
+        )
     }
     return reservations
 }
@@ -82,24 +84,26 @@ public func availableReservationConverter(from response: ReservationResponse) ->
 public func activeReservationConverter(from response: ReservationResponse) -> [ActiveReservation] {
     var reservations = [ActiveReservation]()
     for pren in response.ritorno.appelli {
-        reservations.append(ActiveReservation(codIdenVerb: pren.codIdenVerb,
-                                              codAppe: pren.codAppe,
-                                              codCourseStud: pren.descCorsoStud,
-                                              descCourseStud: pren.descCorsoStud,
-                                              courseName: pren.descrizione,
-                                              cfu: pren.crediti,
-                                              channel: pren.canale,
-                                              teacher: pren.docente,
-                                              faculty: pren.facolta,
-                                              accYear: pren.annoAcca,
-                                              appealDate: pren.dataAppe ?? "",
-                                              notes: pren.note,
-                                              prenotationNumber: pren.numeroPrenotazione ?? -1,
-                                              prenotationDate: pren.dataprenotazione ?? "",
-                                              didacticModuleInitials: pren.SiglaModuloDidattico ?? "",
-                                              ssd: pren.ssd ?? "",
-                                              executionMode: pren.modalitaSvolgimento ?? ""
-                                             ))
+        reservations.append(ActiveReservation(
+                codIdenVerb: pren.codIdenVerb,
+                codAppe: pren.codAppe,
+                codCourseStud: pren.descCorsoStud,
+                descCourseStud: pren.descCorsoStud,
+                courseName: pren.descrizione,
+                cfu: pren.crediti,
+                channel: pren.canale,
+                teacher: pren.docente,
+                faculty: pren.facolta,
+                accYear: pren.annoAcca,
+                appealDate: pren.dataAppe ?? "",
+                notes: pren.note,
+                prenotationNumber: pren.numeroPrenotazione ?? -1,
+                prenotationDate: pren.dataprenotazione ?? "",
+                didacticModuleInitials: pren.SiglaModuloDidattico ?? "",
+                ssd: pren.ssd ?? "",
+                executionMode: pren.modalitaSvolgimento ?? ""
+            )
+        )
     }
     return reservations
 }

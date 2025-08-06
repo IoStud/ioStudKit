@@ -38,32 +38,20 @@ public class AuthenticationHandler {
         guard let httpResponse = response as? HTTPURLResponse else {
             throw RequestError.invalidHTTPResponse
         }
-        
-        guard !(401 == httpResponse.statusCode) else {
-            throw IoStudError.invalidPassword
-        }
-        
-        guard !(404 == httpResponse.statusCode) else {
-            throw IoStudError.invalidUsername
-        }
-        
-        guard (200...299).contains(httpResponse.statusCode) else {
-            throw RequestError.httpRequestError(code: httpResponse.statusCode)
+
+        switch (httpResponse.statusCode) {
+            case 200...299:
+                break
+            case 401:
+                throw IoStudError.invalidPassword
+            case 404:
+                throw IoStudError.invalidUsername
+            default:
+                throw RequestError.httpRequestError(code: httpResponse.statusCode)
         }
 
         guard let authResponse = try? JSONDecoder().decode(AuthResponse.self, from: data) else {
             throw RequestError.jsonDecodingError
-        }
-
-        switch authResponse.error.code {
-            case "auth110", "auth500":
-                throw RequestError.infostudError(info: "Infostud is not working as intended")
-            case "auth151":
-                throw RequestError.infostudError(info: "User is not enabled to use Infostud service") 
-            case "0":
-                break
-            default:
-                throw RequestError.infostudError(info: "Infostud is not working as expected")
         }
         
         self.token = authResponse.result.tokeniws
