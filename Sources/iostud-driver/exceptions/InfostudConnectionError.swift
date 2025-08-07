@@ -11,6 +11,6 @@ public enum RequestError: Error {
 public enum IoStudError: Error {
     case invalidPassword
     case invalidUsername
-    case notWorking
+    case infostdNotWorking
     case opisRequired(url: String)
 }

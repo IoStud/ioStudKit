@@ -59,10 +59,10 @@ public class AuthenticationHandler {
     
     public func getToken() -> String {
         // This will crash only if you call getToken() before login
-        precondition(token != nil, "getToken() called before login")
-        return token!
-    }
-    
+        precondition(token != nil, "Precondition error: getToken() called before login")
+            return token!
+        }
+        
     //TODO: to remove before official release, used only for testing
     public func setSessionToken(token: String) {
         self.token = token

@@ -67,12 +67,9 @@ public func requestAvailableReservations(for exam: ExamDoable) async throws -> [
     }
 
     public func insertReservationRequest(for avRes: AvailableReservation, attendingMode: AvailableReservation.AttendingMode) async throws -> InsertReservationResponse {
-       
-        //TODO: use a proper error
-        if !avRes.AttendingModeList.contains(attendingMode) {
-            print("errore, seleziona un attendingMode disponibile, per l'esame selezionato")
-        }
-        
+            
+        precondition(!avRes.AttendingModeList.contains(attendingMode), "Precondition error: attending mode ‘\(attendingMode)’ is unavailable for this exam. Please select one of the available modes for the selected AvailableReservation.")
+            
         let endpoint = "\(ioStud.ENDPOINT_API)/prenotazione/\(avRes.codIdenVerb)/\(avRes.codAppe)/\(avRes.codCourseStud)/\(attendingMode.examTypeDescription)/?ingresso=\(ioStud.getSessionToken())"
         guard let url = URL(string: endpoint) else {
             throw RequestError.invalidURL(url: endpoint)
