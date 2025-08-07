@@ -1,7 +1,7 @@
 public class IoStud {
-    public let ENDPOINT_LOGIN: String = "https://www.studenti.uniroma1.it/authws/login/idm_ldap/iws"
-    public let ENDPOINT_API: String = "https://www.studenti.uniroma1.it/phoenixws"
-    public let USER_AGENT: String = "Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/81.0"
+    public let ENDPOINT_LOGIN: String   = "https://www.studenti.uniroma1.it/authws/login/idm_ldap/iws"
+    public let ENDPOINT_API: String     = "https://www.studenti.uniroma1.it/phoenixws"
+    public let USER_AGENT: String       = "Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/81.0"
     public let STUDENT_ID: String
     public let MAX_TRIES = 3
     
@@ -16,7 +16,7 @@ public class IoStud {
         self.STUDENT_ID = studentID
         self.password = studentPassword
     }
-    
+
     // TODO: rimuovere catch fare throws
     public func refreshSessionToken() async {
         do {
@@ -39,138 +39,84 @@ public class IoStud {
             print("Unexpected error from login")
         }
     }
-    
-    // TODO: rimuovere catch fare throws
-    public func retrieveStudentBio() async -> StudentBio? {
+
+    // TODO: Remove catch, optional and request name. Only for testing
+    private func tryWithTokenRefresh<T> (
+        requestName: String,
+        task: @escaping () async throws -> T
+    ) async -> T? {
         var count = 0
-        while (true) {
+        while true {
             do {
-                if (count > 0) {
-                    await refreshSessionToken() 
+                if count > 0 {
+                    await refreshSessionToken()
                 }
-                return try await studentBioHandler.requestStudentBio()
-            } catch RequestError.invalidHTTPResponse {
+                return try await task()
+            } catch RequestError.httpRequestError(code: 401) {
                 count += 1
-                if (count == self.MAX_TRIES) {
-                    //throw IoStudError.notWorking
+                if count == MAX_TRIES {
                     print("Infostud not working")
+                    break
                 }
             } catch RequestError.invalidURL {
-                print("Invalid URL for studentbio")
+                print("Invalid URL for \(requestName)")
                 break
             } catch RequestError.jsonDecodingError {
-                print("Invalid data from studentbio request")
+                print("Invalid data from \(requestName) request")
                 break
             } catch RequestError.httpRequestError(let errCode) {
-                print("HTTP Request error, error code:\(errCode)")
+                print("HTTP Request error in \(requestName), error code:\(errCode)")
                 break
             } catch RequestError.infostudError(let info) {
-                print("Invalid infostud response for student bio request, message: \(info)")
+                print("Invalid infostud response for \(requestName) request, message: \(info)")
                 break
             } catch {
-                print("Unexpected error from studentbio request")
+                print("Unexpected error from \(requestName) request")
                 break
             }
         }
         return nil
     }
     
-    // TODO: Controllare che ci sia il token / ancora valido
-    public func retrieveDoneExams() async -> [ExamDone]? {
-        do {
-            return try await examsHandler.requestDoneExams()
-        } catch RequestError.invalidHTTPResponse {
-            print("Invalid HTTP request for done exams")
-        } catch RequestError.invalidURL {
-            print("Invalid URL for done exam")
-        } catch RequestError.jsonDecodingError {
-            print("Invalid data from done exams request")
-        } catch RequestError.httpRequestError(let errCode) {
-            print("HTTP Request error for done exams, error code:\(errCode)")
-        } catch RequestError.infostudError(let info) {
-            print("Invalid response from infostud for done exams request\nMessage error: \(info)")
-        } catch {
-            print("Unexpected error from done exams request")
+    public func retrieveStudentBio() async throws -> StudentBio? {
+        await tryWithTokenRefresh(requestName: "StudentBio") {
+            try await self.studentBioHandler.requestStudentBio()
         }
-        return nil
     }
     
     // TODO: Controllare che ci sia il token / ancora valido
-    public func retrieveDoableExams() async -> [ExamDoable]? {
-        do {
-            return try await examsHandler.requestDoableExams()
-        } catch RequestError.invalidHTTPResponse {
-            print("Invalid HTTP request for doable exams")
-        } catch RequestError.invalidURL {
-            print("Invalid URL for doable exams")
-        } catch RequestError.jsonDecodingError {
-            print("Invalid data from doable exams request")
-        } catch RequestError.httpRequestError(let errCode) {
-            print("HTTP Request error for doable exams, error code:\(errCode)")
-        } catch RequestError.infostudError(let info) {
-            print("Invalid response from infostud for doable exams request\nMessage error: \(info)")
-        } catch {
-            print("Unexpected error from doable exams request")
+    public func retrieveDoneExams() async throws -> [ExamDone]? {
+        await tryWithTokenRefresh(requestName: "DoneExams") {
+            try await self.examsHandler.requestDoneExams()
         }
-        return nil
     }
     
-    public func retrieveActiveReservations() async -> [ActiveReservation]? {
-        do {
-            return try await reservationsHandler.requestActiveReservations()
-        } catch RequestError.invalidHTTPResponse {
-            print("Invalid HTTP response for active reservations")
-        } catch RequestError.invalidURL {
-            print("Invalid URL for active reservations")
-        } catch RequestError.jsonDecodingError {
-            print("Invalid data from active reservations request")
-        } catch RequestError.httpRequestError(let errCode) {
-            print("HTTP Request error, error code:\(errCode)")
-        } catch RequestError.infostudError(let info){
-            print("Invalid infostud response for active reservations request, message: \(info)")
-        } catch {
-            print("Unexpected error from active reservations request")
+    // TODO: Controllare che ci sia il token / ancora valido
+    public func retrieveDoableExams() async throws -> [ExamDoable]? {
+        await tryWithTokenRefresh(requestName: "DoableExams") {
+            try await self.examsHandler.requestDoableExams()
         }
-        return nil
     }
     
-    public func retrieveAvailableReservations(for examDoable: ExamDoable) async -> [AvailableReservation]? {
-        do {
-            return try await reservationsHandler.requestAvailableReservations(for: examDoable)
-        } catch RequestError.invalidHTTPResponse {
-            print("Invalid HTTP response for available reservations")
-        } catch RequestError.invalidURL {
-            print("Invalid URL for available reservations")
-        } catch RequestError.jsonDecodingError {
-            print("Invalid data from available reservations request")
-        } catch RequestError.httpRequestError(let errCode) {
-            print("HTTP Request error, error code:\(errCode)")
-        } catch RequestError.infostudError(let info){
-            print("Invalid infostud response for available reservations request, message: \(info)")
-        } catch {
-            print("Unexpected error from available reservations request")
+    public func retrieveActiveReservations() async throws -> [ActiveReservation]? {
+        await tryWithTokenRefresh(requestName: "ActiveReservations") {
+            try await self.reservationsHandler.requestActiveReservations()
         }
-        return nil
+    }
+    
+    public func retrieveAvailableReservations(for examDoable: ExamDoable) async throws -> [AvailableReservation]? {
+        await tryWithTokenRefresh(requestName: "AvailableReservations") {
+            try await self.reservationsHandler.requestAvailableReservations(for: examDoable)
+        }
     }
     
     public func insertReservation(for avRes: AvailableReservation, attendingMode: AvailableReservation.AttendingMode) async {
-        do {
-            let response = try await reservationsHandler.insertReservationRequest(for: avRes, attendingMode: attendingMode)
+        await tryWithTokenRefresh(requestName: "InsertReservation") {
+            let response = try await self.reservationsHandler.insertReservationRequest(for: avRes, attendingMode: attendingMode)
             if let urlOpis = response.urlOpis {
                 print("Do opis before reservation, url: \(urlOpis)")
+                throw IoStudError.opisRequired(url: urlOpis)
             }
-        } catch RequestError.invalidHTTPResponse {
-            print("Invalid HTTP response for insert reservation")
-        } catch RequestError.invalidURL {
-            print("Invalid URL for insert reservation")
-        } catch RequestError.jsonDecodingError {
-            print("Invalid data from insert reservation request")
-        } catch RequestError.httpRequestError(let errCode) {
-            print("HTTP Request error, error code:\(errCode)")
-        } catch RequestError.infostudError(let info){
-            print("Invalid infostud response for insert reservation request, message: \(info)")
-        } catch {
-            print("Unexpected error from insert reservation request")
         }
     }
     

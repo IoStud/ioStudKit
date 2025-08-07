@@ -12,4 +12,5 @@ public enum IoStudError: Error {
     case invalidPassword
     case invalidUsername
     case notWorking
+    case opisRequired(url: String)
 }
