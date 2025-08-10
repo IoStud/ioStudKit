@@ -1,10 +1,9 @@
 public class IoStud {
-    public let ENDPOINT_LOGIN: String   = "https://www.studenti.uniroma1.it/authws/login/idm_ldap/iws"
-    public let ENDPOINT_API: String     = "https://www.studenti.uniroma1.it/phoenixws"
-    public let USER_AGENT: String       = "Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/81.0"
-    public let STUDENT_ID: String
-    public let MAX_TRIES = 3
+    public static let ENDPOINT_LOGIN = "https://www.studenti.uniroma1.it/authws/login/idm_ldap/iws"
+    public static let ENDPOINT_API   = "https://www.studenti.uniroma1.it/phoenixws"
+    private let MAX_TRIES = 3
     
+    public let STUDENT_ID: String
     private let password: String
     
     lazy private var authenticationHandler =  AuthenticationHandler(ioStud: self, password: password)
@@ -110,7 +109,7 @@ public class IoStud {
         }
     }
     
-    public func insertReservation(for avRes: AvailableReservation, attendingMode: AvailableReservation.AttendingMode) async {
+    public func insertReservation(for avRes: AvailableReservation, attendingMode: AvailableReservation.AttendingMode) async throws {
         await tryWithTokenRefresh(requestName: "InsertReservation") {
             let response = try await self.reservationsHandler.insertReservationRequest(for: avRes, attendingMode: attendingMode)
             if let urlOpis = response.urlOpis {

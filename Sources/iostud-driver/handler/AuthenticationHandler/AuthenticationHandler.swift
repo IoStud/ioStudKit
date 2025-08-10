@@ -3,18 +3,18 @@ import Foundation
 import FoundationNetworking
 #endif
 
-public class AuthenticationHandler {
+internal class AuthenticationHandler {
     private let ioStud: IoStud
     private var password: String
     private var token: String!
     
-    public init(ioStud: IoStud, password: String) {
+    internal init(ioStud: IoStud, password: String) {
         self.ioStud = ioStud
         self.password = password
     }
     
-    public func login() async throws {
-        let endpoint = ioStud.ENDPOINT_LOGIN
+    internal func login() async throws {
+        let endpoint = IoStud.ENDPOINT_LOGIN
         
         guard let endpointURL = URL(string: endpoint) else {
             throw RequestError.invalidURL(url: endpoint)
@@ -30,7 +30,7 @@ public class AuthenticationHandler {
         var request = URLRequest(url: endpointURL)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue(ioStud.USER_AGENT, forHTTPHeaderField: "User-Agent")
+        request.setValue(CallHelper.USER_AGENT, forHTTPHeaderField: "User-Agent")
         request.httpBody = jsonData
         
         let (data, response) = try await URLSession.shared.data(for: request)
@@ -57,14 +57,14 @@ public class AuthenticationHandler {
         self.token = authResponse.result.tokeniws
     }
     
-    public func getToken() -> String {
+    internal func getToken() -> String {
         // This will crash only if you call getToken() before login
         precondition(token != nil, "Precondition error: getToken() called before login")
-            return token!
-        }
+        return token!
+    }
         
     //TODO: to remove before official release, used only for testing
-    public func setSessionToken(token: String) {
+    internal func setSessionToken(token: String) {
         self.token = token
     }
 }

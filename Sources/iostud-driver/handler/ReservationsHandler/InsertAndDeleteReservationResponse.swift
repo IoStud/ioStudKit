@@ -1,6 +1,6 @@
 import Foundation
 
-public struct InsertReservationResponse: Codable {
+internal struct InsertReservationResponse: Codable {
     
     let esito: InfostudRequestResultFlags
     let output: String

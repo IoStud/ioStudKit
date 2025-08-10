@@ -18,7 +18,7 @@ import Testing
         ioStud.setSessionToken(token: secret_token)
     }
     
-    guard let bio = await ioStud.retrieveStudentBio() else {
+    guard let bio = try await ioStud.retrieveStudentBio() else {
         print("Error while fetching student bio")
         return
     }
@@ -35,7 +35,7 @@ import Testing
         ioStud.setSessionToken(token: secret_token)
     }
     
-    guard let doneExams = await ioStud.retrieveDoneExams() else {
+    guard let doneExams = try await ioStud.retrieveDoneExams() else {
         print("Error while fetching done exams")
         return
     }
@@ -56,7 +56,7 @@ import Testing
         ioStud.setSessionToken(token: secret_token)
     }
     
-    guard let doableExams = await ioStud.retrieveDoableExams() else {
+    guard let doableExams = try await ioStud.retrieveDoableExams() else {
         print("Error while fetching doable exams")
         return
     }
@@ -77,7 +77,7 @@ import Testing
         ioStud.setSessionToken(token: secret_token)
     }
     
-    guard let availableReservations = await ioStud.retrieveActiveReservations() else {
+    guard let availableReservations = try await ioStud.retrieveActiveReservations() else {
         print("Error while fetching available reservations")
         return
     }
@@ -97,14 +97,14 @@ import Testing
         ioStud.setSessionToken(token: secret_token)
     }
     
-    guard let doableExams = await ioStud.retrieveDoableExams() else {
+    guard let doableExams = try await ioStud.retrieveDoableExams() else {
         print("Error while fetching doable exams")
         return
     }
     var availableReservationList = [AvailableReservation]()
     
     for exam in doableExams {
-        guard let availableReservations = await ioStud.retrieveAvailableReservations(for: exam) else {
+        guard let availableReservations = try await ioStud.retrieveAvailableReservations(for: exam) else {
             print("Error while fetching available reservations")
             return
         }
@@ -119,7 +119,6 @@ import Testing
         counter += 1
     }
 }
-
 
 @Test func testInsertReservation() async throws {
     let ioStud = IoStud(studentID: secret_maticola , studentPassword: secret_pw)

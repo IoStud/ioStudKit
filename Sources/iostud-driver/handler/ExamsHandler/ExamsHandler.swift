@@ -3,35 +3,19 @@ import Foundation
 import FoundationNetworking
 #endif
 
-public class ExamsHandler {
+internal class ExamsHandler {
     private var ioStud: IoStud
 
     public init(ioStud: IoStud) {
         self.ioStud = ioStud
     }
     
-    public func requestDoneExams() async throws -> [ExamDone] {
+    internal func requestDoneExams() async throws -> [ExamDone] {
         // Note: If no DoneExams are present, an empty array is returned
         
-        let endpoint = "\(ioStud.ENDPOINT_API)/studente/\(ioStud.STUDENT_ID)/esamiall?ingresso=\(ioStud.getSessionToken())"
+        let endpoint = "\(IoStud.ENDPOINT_API)/studente/\(ioStud.STUDENT_ID)/esamiall?ingresso=\(ioStud.getSessionToken())"
         
-        guard let url = URL(string: endpoint) else {
-            throw RequestError.invalidURL(url: endpoint)
-        }
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        request.setValue(ioStud.USER_AGENT, forHTTPHeaderField: "User-Agent")
-        
-        let (data, response) = try await URLSession.shared.data(for: request)
-        
-        guard let httpResponse = response as? HTTPURLResponse else {
-            throw RequestError.invalidHTTPResponse
-        }
-        
-        guard (200...299).contains(httpResponse.statusCode) else {
-            throw RequestError.httpRequestError(code: httpResponse.statusCode)
-        }
+        let data = try await CallHelper.getRequest(for: endpoint)
         
         guard let jsonResponse = try? JSONDecoder().decode(ExamsDoneResponse.self, from: data) else {
             throw RequestError.jsonDecodingError
@@ -40,28 +24,12 @@ public class ExamsHandler {
         return examsDoneConverter(from: jsonResponse.ritorno.esami)
     }
     
-    public func requestDoableExams() async throws -> [ExamDoable] {
+    internal func requestDoableExams() async throws -> [ExamDoable] {
         // Note: If no DoableExams are present, an empty array is returned
         
-        let endpoint = "\(ioStud.ENDPOINT_API)/studente/\(ioStud.STUDENT_ID)/insegnamentisostenibili?ingresso=\(ioStud.getSessionToken())"
+        let endpoint = "\(IoStud.ENDPOINT_API)/studente/\(ioStud.STUDENT_ID)/insegnamentisostenibili?ingresso=\(ioStud.getSessionToken())"
         
-        guard let url = URL(string: endpoint) else {
-            throw RequestError.invalidURL(url: endpoint)
-        }
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        request.setValue(ioStud.USER_AGENT, forHTTPHeaderField: "User-Agent")
-        
-        let (data, response) = try await URLSession.shared.data(for: request)
-        
-        guard let httpResponse = response as? HTTPURLResponse else {
-            throw RequestError.invalidHTTPResponse
-        }
-        
-        guard (200...299).contains(httpResponse.statusCode) else {
-            throw RequestError.httpRequestError(code: httpResponse.statusCode)
-        }
+        let data = try await CallHelper.getRequest(for: endpoint)
         
         guard let jsonResponse = try? JSONDecoder().decode(ExamsDoableResponse.self, from: data) else {
             throw RequestError.jsonDecodingError

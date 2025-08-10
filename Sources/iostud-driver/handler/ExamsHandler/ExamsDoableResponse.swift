@@ -1,15 +1,15 @@
 import Foundation
 
-public struct ExamsDoableResponse: Codable {
+internal struct ExamsDoableResponse: Codable {
     
     let esito: InfostudRequestResultFlags
     let ritorno: ExamsDoableResponse.Ritorno
     
-    public struct Ritorno: Codable {
+    struct Ritorno: Codable {
         let esami: [ExamsDoableResponse.Esame]
     }
     
-    public struct Esame: Codable {
+    struct Esame: Codable {
         let codiceInsegnamento: String
         let codiceModuloDidattico: String
         let codiceCorsoInsegnamento: String
@@ -19,7 +19,7 @@ public struct ExamsDoableResponse: Codable {
     }
 }
 
-public func examsDoableConverter(from response: [ExamsDoableResponse.Esame]) -> [ExamDoable] {
+internal func examsDoableConverter(from response: [ExamsDoableResponse.Esame]) -> [ExamDoable] {
     var exams: [ExamDoable] = []
     
     for exam in response {

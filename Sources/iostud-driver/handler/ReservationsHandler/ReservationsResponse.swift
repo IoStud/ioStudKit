@@ -1,6 +1,6 @@
 import Foundation
 
-public struct ReservationResponse: Codable {
+internal struct ReservationResponse: Codable {
 
     let esito: InfostudRequestResultFlags
     let ritorno: ReservationResponse.Ritorno
@@ -48,7 +48,7 @@ public struct ReservationResponse: Codable {
     }
 }
 
-public func availableReservationConverter(from response: ReservationResponse) -> [AvailableReservation] {
+internal func availableReservationConverter(from response: ReservationResponse) -> [AvailableReservation] {
     var reservations = [AvailableReservation]()
     for pren in response.ritorno.appelli {
         
@@ -61,7 +61,7 @@ public func availableReservationConverter(from response: ReservationResponse) ->
         reservations.append(AvailableReservation(
                 codIdenVerb: pren.codIdenVerb,
                 codAppe: pren.codAppe,
-                codCourseStud: pren.descCorsoStud,
+                codCourseStud: pren.codCorsoStud,
                 descCourseStud: pren.descCorsoStud,
                 courseName: pren.descrizione,
                 cfu: pren.crediti,
@@ -81,7 +81,7 @@ public func availableReservationConverter(from response: ReservationResponse) ->
     return reservations
 }
 
-public func activeReservationConverter(from response: ReservationResponse) -> [ActiveReservation] {
+internal func activeReservationConverter(from response: ReservationResponse) -> [ActiveReservation] {
     var reservations = [ActiveReservation]()
     for pren in response.ritorno.appelli {
         reservations.append(ActiveReservation(
