@@ -119,6 +119,12 @@ public class IoStud {
         }
     }
     
+    public func deleteReservation(for acRes: ActiveReservation) async throws {
+        await tryWithTokenRefresh(requestName: "deleteActiveReservation") {
+            try await self.reservationsHandler.deleteReservationRequest(for: acRes)
+        }
+    }
+    
     public func getSessionToken() -> String {
         return authenticationHandler.getToken()
     }

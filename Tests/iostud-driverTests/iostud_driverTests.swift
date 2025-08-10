@@ -77,14 +77,17 @@ import Testing
         ioStud.setSessionToken(token: secret_token)
     }
     
-    guard let availableReservations = try await ioStud.retrieveActiveReservations() else {
-        print("Error while fetching available reservations")
+    guard var activeReservations = try await ioStud.retrieveActiveReservations() else {
+        print("Error while fetching active reservations")
         return
     }
-
-    for reservation in availableReservations {
-        print(reservation)
-        print("----- ----- -----")
+    activeReservations.sort(by: {$0.appealDate<$1.appealDate})
+    
+    var counter = 0
+    for reservation in activeReservations {
+        print("Reservation \(counter):\n \t - corso:\(reservation.courseName)\n \t - canale:\(reservation.channel)\n \t - data:\(reservation.appealDate)\n \t - nota: \(reservation.notes ?? "")\n\(reservation)")
+        print("----- ----- -----\n")
+        counter += 1
     }
 }
 
@@ -129,22 +132,45 @@ import Testing
         ioStud.setSessionToken(token: secret_token)
     }
     
-    guard let availableReservations = await ioStud.retrieveActiveReservations() else {
-        print("Error while fetching available reservations")
+    guard let doableExams = try await ioStud.retrieveDoableExams() else {
+        print("Error while fetching doable exams")
         return
     }
+    var availableReservationList = [AvailableReservation]()
     
-    var counter = 0
-    for reservation in availableReservations {
-        print("Reservation: \(counter): \(reservation)")
-        print("----- ----- -----")
+    for exam in doableExams {
+        guard let availableReservations = try await ioStud.retrieveAvailableReservations(for: exam) else {
+            print("Error while fetching available reservations")
+            return
+        }
+        availableReservationList.append(contentsOf: availableReservations)
     }
     
-    print("Please enter a number:", terminator: " ")
-    guard let line = readLine(),
-          let number = Int(line)
-    else {
-        print("Invalid input—please enter a valid integer.")
+    availableReservationList.sort(by: {$0.appealDate < $1.appealDate})
+    
+    let reservationIndex = 999
+    let selecedReservation = availableReservationList[reservationIndex]
+    
+    print(try await ioStud.insertReservation(for: selecedReservation, attendingMode: selecedReservation.AttendingModeList[0]))
+}
+
+@Test func testDeleteReservation() async throws {
+    let ioStud = IoStud(studentID: secret_maticola , studentPassword: secret_pw)
+    
+    if secret_token.isEmpty {
+        print("Error: Missing session token\n - Follow instructions in how_to_test.md to generate a session token")
+    } else {
+        ioStud.setSessionToken(token: secret_token)
+    }
+ 
+    guard var activeReservations = try await ioStud.retrieveActiveReservations() else {
+        print("Error while fetching active reservations")
         return
     }
+    activeReservations.sort(by: {$0.appealDate<$1.appealDate})
+    
+    let reservationIndex = 0
+    let selecedReservation = activeReservations[reservationIndex]
+    
+    print(try await ioStud.deleteReservation(for: selecedReservation))
 }

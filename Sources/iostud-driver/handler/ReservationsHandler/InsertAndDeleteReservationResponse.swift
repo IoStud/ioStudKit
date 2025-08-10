@@ -7,3 +7,9 @@ internal struct InsertReservationResponse: Codable {
     let url: String?
     let urlOpis: String?
 }
+
+internal struct DeleteReservationResponse: Codable {
+    
+    let esito: InfostudRequestResultFlags
+    let output: String
+}
