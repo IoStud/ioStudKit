@@ -1,11 +1,11 @@
 public class IoStud {
-    public static let ENDPOINT_LOGIN = "https://www.studenti.uniroma1.it/authws/login/idm_ldap/iws"
-    public static let ENDPOINT_API   = "https://www.studenti.uniroma1.it/phoenixws"
-    private let MAX_TRIES = 3
+    internal static let ENDPOINT_LOGIN = "https://www.studenti.uniroma1.it/authws/login/idm_ldap/iws"
+    internal static let ENDPOINT_API   = "https://www.studenti.uniroma1.it/phoenixws"
     
     public let STUDENT_ID: String
     private let password: String
     
+    private let MAX_TRIES = 3
     lazy private var authenticationHandler =  AuthenticationHandler(ioStud: self, password: password)
     lazy private var examsHandler = ExamsHandler(ioStud: self)
     lazy private var studentBioHandler = StudentBioHandler(ioStud: self)
@@ -15,9 +15,8 @@ public class IoStud {
         self.STUDENT_ID = studentID
         self.password = studentPassword
     }
-
-    // TODO: rimuovere catch fare throws
-    public func refreshSessionToken() async {
+    
+    public func doLogin() async {
         do {
             try await authenticationHandler.login()
         } catch RequestError.invalidHTTPResponse {
@@ -48,7 +47,7 @@ public class IoStud {
         while true {
             do {
                 if count > 0 {
-                    await refreshSessionToken()
+                    await doLogin()
                 }
                 return try await task()
             } catch RequestError.httpRequestError(code: 401) {
@@ -83,14 +82,12 @@ public class IoStud {
         }
     }
     
-    // TODO: Controllare che ci sia il token / ancora valido
     public func retrieveDoneExams() async throws -> [ExamDone]? {
         await tryWithTokenRefresh(requestName: "DoneExams") {
             try await self.examsHandler.requestDoneExams()
         }
     }
     
-    // TODO: Controllare che ci sia il token / ancora valido
     public func retrieveDoableExams() async throws -> [ExamDoable]? {
         await tryWithTokenRefresh(requestName: "DoableExams") {
             try await self.examsHandler.requestDoableExams()
@@ -127,10 +124,5 @@ public class IoStud {
     
     public func getSessionToken() -> String {
         return authenticationHandler.getToken()
-    }
-    
-    //TODO: to remove before official release, used only for testing
-    public func setSessionToken(token: String) {
-        authenticationHandler.setSessionToken(token: token)
     }
 }

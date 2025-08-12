@@ -1,22 +1,14 @@
 import Testing
-@testable import iostud_driver
+@testable import IoStudKit
 
 @Test func sessionTokenGenerator() async throws {
     let ioStud = IoStud(studentID: secret_maticola , studentPassword: secret_pw)
-    
-    await ioStud.refreshSessionToken()
     
     print("Token: \(ioStud.getSessionToken()) <--- copy this token and paste it into the secret_token empty string in secret.swift")
 }
 
 @Test func testStudentBio() async throws {
     let ioStud = IoStud(studentID: secret_maticola , studentPassword: secret_pw)
-    
-    if secret_token.isEmpty {
-        print("Error: Missing session token\n - Follow instructions in how_to_test.md to generate a session token")
-    } else {
-        ioStud.setSessionToken(token: secret_token)
-    }
     
     guard let bio = try await ioStud.retrieveStudentBio() else {
         print("Error while fetching student bio")
@@ -28,12 +20,6 @@ import Testing
 
 @Test func testDoneExams() async throws {
     let ioStud = IoStud(studentID: secret_maticola , studentPassword: secret_pw)
-    
-    if secret_token.isEmpty {
-        print("Error: Missing session token\n - Follow instructions in how_to_test.md to generate a session token")
-    } else {
-        ioStud.setSessionToken(token: secret_token)
-    }
     
     guard let doneExams = try await ioStud.retrieveDoneExams() else {
         print("Error while fetching done exams")
@@ -50,12 +36,6 @@ import Testing
 @Test func testDoableExams() async throws {
     let ioStud = IoStud(studentID: secret_maticola , studentPassword: secret_pw)
     
-    if secret_token.isEmpty {
-        print("Error: Missing session token\n - Follow instructions in how_to_test.md to generate a session token")
-    } else {
-        ioStud.setSessionToken(token: secret_token)
-    }
-    
     guard let doableExams = try await ioStud.retrieveDoableExams() else {
         print("Error while fetching doable exams")
         return
@@ -70,12 +50,6 @@ import Testing
 
 @Test func testActiveReservations() async throws {
     let ioStud = IoStud(studentID: secret_maticola , studentPassword: secret_pw)
-    
-    if secret_token.isEmpty {
-        print("Error: Missing session token\n - Follow instructions in how_to_test.md to generate a session token")
-    } else {
-        ioStud.setSessionToken(token: secret_token)
-    }
     
     guard var activeReservations = try await ioStud.retrieveActiveReservations() else {
         print("Error while fetching active reservations")
@@ -93,12 +67,6 @@ import Testing
 
 @Test func testAvailableReservations() async throws {
     let ioStud = IoStud(studentID: secret_maticola , studentPassword: secret_pw)
-    
-    if secret_token.isEmpty {
-        print("Error: Missing session token\n - Follow instructions in how_to_test.md to generate a session token")
-    } else {
-        ioStud.setSessionToken(token: secret_token)
-    }
     
     guard let doableExams = try await ioStud.retrieveDoableExams() else {
         print("Error while fetching doable exams")
@@ -126,12 +94,6 @@ import Testing
 @Test func testInsertReservation() async throws {
     let ioStud = IoStud(studentID: secret_maticola , studentPassword: secret_pw)
     
-    if secret_token.isEmpty {
-        print("Error: Missing session token\n - Follow instructions in how_to_test.md to generate a session token")
-    } else {
-        ioStud.setSessionToken(token: secret_token)
-    }
-    
     guard let doableExams = try await ioStud.retrieveDoableExams() else {
         print("Error while fetching doable exams")
         return
@@ -157,12 +119,6 @@ import Testing
 @Test func testDeleteReservation() async throws {
     let ioStud = IoStud(studentID: secret_maticola , studentPassword: secret_pw)
     
-    if secret_token.isEmpty {
-        print("Error: Missing session token\n - Follow instructions in how_to_test.md to generate a session token")
-    } else {
-        ioStud.setSessionToken(token: secret_token)
-    }
- 
     guard var activeReservations = try await ioStud.retrieveActiveReservations() else {
         print("Error while fetching active reservations")
         return
