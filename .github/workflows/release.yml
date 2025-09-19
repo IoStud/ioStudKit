@@ -20,10 +20,44 @@ jobs:
         with:
           swift-version: "6.1"
 
-      - name: Build package
+      - name: Build package (release)
         run: swift build --configuration release
+
+      - name: Package release binaries
+        run: |
+          mkdir build-artifacts
+          cp -r .build/release/* build-artifacts/
+          cd build-artifacts
+          zip -r ../ioStudKit-binaries.zip .
+
+      - name: Build XCFramework
+        run: |
+          PRODUCT_NAME=ioStudKit
+          
+          xcodebuild archive \
+            -scheme $PRODUCT_NAME \
+            -destination "generic/platform=iOS Simulator" \
+            -archivePath "build/$PRODUCT_NAME-Sim" \
+            SKIP_INSTALL=NO BUILD_LIBRARY_FOR_DISTRIBUTION=YES
+
+          xcodebuild archive \
+            -scheme $PRODUCT_NAME \
+            -destination "generic/platform=iOS" \
+            -archivePath "build/$PRODUCT_NAME-Device" \
+            SKIP_INSTALL=NO BUILD_LIBRARY_FOR_DISTRIBUTION=YES
+
+          xcodebuild -create-xcframework \
+            -framework build/$PRODUCT_NAME-Sim.xcarchive/Products/Library/Frameworks/$PRODUCT_NAME.framework \
+            -framework build/$PRODUCT_NAME-Device.xcarchive/Products/Library/Frameworks/$PRODUCT_NAME.framework \
+            -output build/$PRODUCT_NAME.xcframework
+          
+          cd build
+          zip -r ../ioStudKit-xcframework.zip $PRODUCT_NAME.xcframework
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           generate_release_notes: true
+          files: |
+            ioStudKit-binaries.zip
+            ioStudKit-xcframework.zip
