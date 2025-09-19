@@ -62,7 +62,7 @@ You can add **IoStudKit** to your Swift project either in Xcode or via the Swift
        targets: [
            .target(
                name: "YourProject",
-               dependencies: ["IoStudKit"]
+               dependencies: ["ioStudKit"]
            )
        ]
    )
