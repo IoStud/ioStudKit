@@ -43,9 +43,9 @@ internal class AuthenticationHandler {
             case 200...299:
                 break
             case 401:
-                throw IoStudError.invalidPassword
+                throw AuthServerError.invalidPassword
             case 404:
-                throw IoStudError.invalidUsername
+                throw AuthServerError.invalidUsername
             default:
                 throw RequestError.httpRequestError(code: httpResponse.statusCode)
         }

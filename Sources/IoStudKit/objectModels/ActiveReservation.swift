@@ -1,6 +1,6 @@
 import Foundation
 
-public struct ActiveReservation{
+public struct ActiveReservation {
     let codIdenVerb: Int
     let codAppe: Int
     let codCourseStud: String

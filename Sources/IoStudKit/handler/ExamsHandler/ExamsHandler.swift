@@ -3,14 +3,14 @@ import Foundation
 import FoundationNetworking
 #endif
 
-internal class ExamsHandler {
+class ExamsHandler {
     private var ioStud: IoStud
 
     public init(ioStud: IoStud) {
         self.ioStud = ioStud
     }
     
-    internal func requestDoneExams() async throws -> [ExamDone] {
+    func requestDoneExams() async throws -> [ExamDone] {
         // Note: If no DoneExams are present, an empty array is returned
         
         let endpoint = "\(IoStud.ENDPOINT_API)/studente/\(ioStud.STUDENT_ID)/esamiall?ingresso=\(ioStud.getSessionToken())"
@@ -24,7 +24,7 @@ internal class ExamsHandler {
         return examsDoneConverter(from: jsonResponse.ritorno.esami)
     }
     
-    internal func requestDoableExams() async throws -> [ExamDoable] {
+    func requestDoableExams() async throws -> [ExamDoable] {
         // Note: If no DoableExams are present, an empty array is returned
         
         let endpoint = "\(IoStud.ENDPOINT_API)/studente/\(ioStud.STUDENT_ID)/insegnamentisostenibili?ingresso=\(ioStud.getSessionToken())"

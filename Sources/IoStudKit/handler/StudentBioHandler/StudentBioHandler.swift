@@ -3,14 +3,14 @@ import Foundation
 import FoundationNetworking
 #endif
 
-internal class StudentBioHandler {
+class StudentBioHandler {
     private let ioStud: IoStud
     
     init(ioStud: IoStud) {
         self.ioStud = ioStud
     }
     
-    internal func requestStudentBio() async throws -> StudentBio {
+    func requestStudentBio() async throws -> StudentBio {
         
         let endpoint = "\(IoStud.ENDPOINT_API)/studente/\(ioStud.STUDENT_ID)?ingresso=\(ioStud.getSessionToken())"
         

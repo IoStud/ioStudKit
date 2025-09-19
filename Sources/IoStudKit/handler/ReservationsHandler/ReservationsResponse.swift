@@ -1,15 +1,15 @@
 import Foundation
 
-internal struct ReservationResponse: Codable {
+struct ReservationResponse: Decodable {
 
     let esito: InfostudRequestResultFlags
     let ritorno: ReservationResponse.Ritorno
 
-    struct Ritorno: Codable {
+    struct Ritorno: Decodable {
         let appelli: [Prenotazione]
     }
 
-    struct Prenotazione: Codable {
+    struct Prenotazione: Decodable {
         let codIdenVerb: Int
         let codAppe: Int
         //let tipoPren: ANKNOWN?            //never used + unknown data type (Sting uded as a filler)
@@ -42,13 +42,13 @@ internal struct ReservationResponse: Codable {
         let modalitaSvolgimentoList: [ModalitaSvolgimento]?
     }
     
-    struct ModalitaSvolgimento: Codable {
+    struct ModalitaSvolgimento: Decodable {
         let tipoEsame : String
         let descrizioneTipoEsame : String
     }
 }
 
-internal func availableReservationConverter(from response: ReservationResponse) -> [AvailableReservation] {
+func availableReservationConverter(from response: ReservationResponse) -> [AvailableReservation] {
     var reservations = [AvailableReservation]()
     for pren in response.ritorno.appelli {
         
@@ -81,7 +81,7 @@ internal func availableReservationConverter(from response: ReservationResponse) 
     return reservations
 }
 
-internal func activeReservationConverter(from response: ReservationResponse) -> [ActiveReservation] {
+func activeReservationConverter(from response: ReservationResponse) -> [ActiveReservation] {
     var reservations = [ActiveReservation]()
     for pren in response.ritorno.appelli {
         reservations.append(ActiveReservation(

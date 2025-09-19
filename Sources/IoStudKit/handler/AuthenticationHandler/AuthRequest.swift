@@ -1,8 +1,8 @@
 import Foundation
 
-internal struct AuthRequest: Codable {
+internal struct AuthRequest: Encodable {
     
-    struct Credentials: Codable {
+    struct Credentials: Encodable {
         let user: String
         let passwd: String
     }

@@ -3,14 +3,14 @@ import Foundation
 import FoundationNetworking
 #endif
 
-internal class ReservationsHandler {
+class ReservationsHandler {
     private var ioStud: IoStud
     
     public init(ioStud: IoStud) {
         self.ioStud = ioStud
     }
     
-    internal func requestAvailableReservations(for exam: ExamDoable) async throws -> [AvailableReservation] {
+    func requestAvailableReservations(for exam: ExamDoable) async throws -> [AvailableReservation] {
         // Note: If no AvailableReservations are present, an empty array is returned
         
         let endpoint = "\(IoStud.ENDPOINT_API)/appello/ricerca?ingresso=\(ioStud.getSessionToken())&codiceCorso=\(exam.courseCode)&criterio=\(exam.didacticModuleCode)&tipoRicerca=4"
@@ -24,7 +24,7 @@ internal class ReservationsHandler {
         return availableReservationConverter(from: jsonResponse)
     }
     
-    internal func requestActiveReservations() async throws -> [ActiveReservation]{
+    func requestActiveReservations() async throws -> [ActiveReservation]{
         // Note: If no ActiveReservations are present, an empty array is returned
         
         let endpoint = "\(IoStud.ENDPOINT_API)/studente/\(ioStud.STUDENT_ID)/prenotazioni?ingresso=\(ioStud.getSessionToken())"
@@ -38,7 +38,7 @@ internal class ReservationsHandler {
         return activeReservationConverter(from: jsonResponse)
     }
     
-    internal func insertReservationRequest(for avRes: AvailableReservation, attendingMode: AvailableReservation.AttendingMode) async throws -> InsertReservationResponse {
+    func insertReservationRequest(for avRes: AvailableReservation, attendingMode: AvailableReservation.AttendingMode) async throws -> InsertReservationResponse {
         
         precondition(avRes.AttendingModeList.contains(attendingMode), "Precondition error: attending mode ‘\(attendingMode)’ is unavailable for this exam. Please select one of the available modes for the selected AvailableReservation.")
         
@@ -70,7 +70,7 @@ internal class ReservationsHandler {
         return jsonResponse
     }
     
-    internal func deleteReservationRequest(for acRes: ActiveReservation) async throws -> DeleteReservationResponse {
+    func deleteReservationRequest(for acRes: ActiveReservation) async throws {
         let endpoint = "\(IoStud.ENDPOINT_API)/prenotazione/\(acRes.codIdenVerb)/\(acRes.codAppe)/\(ioStud.STUDENT_ID)/\(acRes.prenotationNumber)?ingresso=\(ioStud.getSessionToken())"
         
         let data = try await CallHelper.deleteRequest(for: endpoint)
@@ -78,6 +78,6 @@ internal class ReservationsHandler {
         guard let jsonResponse = try? JSONDecoder().decode(DeleteReservationResponse.self, from: data) else {
             throw RequestError.jsonDecodingError
         }
-        return jsonResponse
+        // TODO: jsonResponse should be checked for possible errors
     }
 }

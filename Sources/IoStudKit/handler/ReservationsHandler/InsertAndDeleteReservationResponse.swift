@@ -1,6 +1,6 @@
 import Foundation
 
-internal struct InsertReservationResponse: Codable {
+struct InsertReservationResponse: Decodable {
     
     let esito: InfostudRequestResultFlags
     let output: String
@@ -8,7 +8,7 @@ internal struct InsertReservationResponse: Codable {
     let urlOpis: String?
 }
 
-internal struct DeleteReservationResponse: Codable {
+struct DeleteReservationResponse: Decodable {
     
     let esito: InfostudRequestResultFlags
     let output: String

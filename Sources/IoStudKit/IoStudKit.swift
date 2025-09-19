@@ -1,11 +1,10 @@
 public class IoStud {
-    internal static let ENDPOINT_LOGIN = "https://www.studenti.uniroma1.it/authws/login/idm_ldap/iws"
-    internal static let ENDPOINT_API   = "https://www.studenti.uniroma1.it/phoenixws"
+    static let ENDPOINT_LOGIN = "https://www.studenti.uniroma1.it/authws/login/idm_ldap/iws"
+    static let ENDPOINT_API   = "https://www.studenti.uniroma1.it/phoenixws"
     
     public let STUDENT_ID: String
     private let password: String
     
-    private let MAX_TRIES = 3
     lazy private var authenticationHandler =  AuthenticationHandler(ioStud: self, password: password)
     lazy private var examsHandler = ExamsHandler(ioStud: self)
     lazy private var studentBioHandler = StudentBioHandler(ioStud: self)
@@ -16,108 +15,79 @@ public class IoStud {
         self.password = studentPassword
     }
     
-    public func doLogin() async {
-        do {
-            try await authenticationHandler.login()
-        } catch RequestError.invalidHTTPResponse {
-            print("Invalid invalid HTTP Response for login")
-        } catch RequestError.invalidURL {
-            print("Invalid URL for login")
-        } catch RequestError.jsonDecodingError {
-            print("Invalid data from login request")
-        } catch RequestError.httpRequestError(let errCode) {
-            print("HTTP Request error, error code:\(errCode)")
-        } catch RequestError.infostudError(let info){
-            print("Invalid infostud response for login, message: \(info)")
-        } catch IoStudError.invalidPassword {
-            print("Invalid password")
-        } catch IoStudError.invalidUsername {
-            print("Invalid user name")
-        } catch {
-            print("Unexpected error from login")
-        }
+    public func doLogin() async throws {
+        try await authenticationHandler.login()
     }
 
-    // TODO: Remove catch, optional and request name. Only for testing
     private func tryWithTokenRefresh<T> (
-        requestName: String,
-        task: @escaping () async throws -> T
-    ) async -> T? {
-        var count = 0
-        while true {
-            do {
-                if count > 0 {
-                    await doLogin()
+            task: @escaping () async throws -> T
+        ) async throws -> T {
+            
+            let MAX_TRIES = 3
+            var count = 0
+            
+            while count < MAX_TRIES {
+                do {
+                    if count > 0 {
+                        try await doLogin()
+                    }
+                    return try await task()
+                } catch RequestError.httpRequestError(code: 401) {  // 401 http error code is used for expired token
+                    count += 1
                 }
-                return try await task()
-            } catch RequestError.httpRequestError(code: 401) {
-                count += 1
-                if count == MAX_TRIES {
-                    print("Infostud not working")
-                    break
-                }
-            } catch RequestError.invalidURL {
-                print("Invalid URL for \(requestName)")
-                break
-            } catch RequestError.jsonDecodingError {
-                print("Invalid data from \(requestName) request")
-                break
-            } catch RequestError.httpRequestError(let errCode) {
-                print("HTTP Request error in \(requestName), error code:\(errCode)")
-                break
-            } catch RequestError.infostudError(let info) {
-                print("Invalid infostud response for \(requestName) request, message: \(info)")
-                break
-            } catch {
-                print("Unexpected error from \(requestName) request")
-                break
             }
-        }
-        return nil
+            
+            throw InfostudError.infostudNotWorking
+
+            //Errors: RequestError.invalidURL
+            //        RequestError.jsonDecodingError {
+            //        RequestError.httpRequestError(let errCode)
+            //        RequestError.infostudError(let info)
+            //        AuthServerError.invalidUsername
+            //        AuthServerError.invalidPassword
     }
     
-    public func retrieveStudentBio() async throws -> StudentBio? {
-        await tryWithTokenRefresh(requestName: "StudentBio") {
+    public func retrieveStudentBio() async throws -> StudentBio {
+        try await tryWithTokenRefresh() {
             try await self.studentBioHandler.requestStudentBio()
         }
     }
     
-    public func retrieveDoneExams() async throws -> [ExamDone]? {
-        await tryWithTokenRefresh(requestName: "DoneExams") {
+    public func retrieveDoneExams() async throws -> [ExamDone] {
+        try await tryWithTokenRefresh() {
             try await self.examsHandler.requestDoneExams()
         }
     }
     
-    public func retrieveDoableExams() async throws -> [ExamDoable]? {
-        await tryWithTokenRefresh(requestName: "DoableExams") {
+    public func retrieveDoableExams() async throws -> [ExamDoable] {
+        try await tryWithTokenRefresh() {
             try await self.examsHandler.requestDoableExams()
         }
     }
     
-    public func retrieveActiveReservations() async throws -> [ActiveReservation]? {
-        await tryWithTokenRefresh(requestName: "ActiveReservations") {
+    public func retrieveActiveReservations() async throws -> [ActiveReservation] {
+        try await tryWithTokenRefresh() {
             try await self.reservationsHandler.requestActiveReservations()
         }
     }
     
-    public func retrieveAvailableReservations(for examDoable: ExamDoable) async throws -> [AvailableReservation]? {
-        await tryWithTokenRefresh(requestName: "AvailableReservations") {
+    public func retrieveAvailableReservations(for examDoable: ExamDoable) async throws -> [AvailableReservation] {
+        try await tryWithTokenRefresh() {
             try await self.reservationsHandler.requestAvailableReservations(for: examDoable)
         }
     }
     
     public func insertReservation(for avRes: AvailableReservation, attendingMode: AvailableReservation.AttendingMode) async throws {
-        await tryWithTokenRefresh(requestName: "InsertReservation") {
+        try await tryWithTokenRefresh() {
             let response = try await self.reservationsHandler.insertReservationRequest(for: avRes, attendingMode: attendingMode)
             if let urlOpis = response.urlOpis {
-                print("Do opis before reservation, url: \(urlOpis)")
-                throw IoStudError.opisRequired(url: urlOpis)
+                throw InfostudError.opisRequired(url: urlOpis)
             }
         }
     }
     
     public func deleteReservation(for acRes: ActiveReservation) async throws {
-        await tryWithTokenRefresh(requestName: "deleteActiveReservation") {
+        try await tryWithTokenRefresh() {
             try await self.reservationsHandler.deleteReservationRequest(for: acRes)
         }
     }

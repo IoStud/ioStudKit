@@ -1,6 +1,6 @@
 import Foundation
 
-public struct InfostudRequestResultFlags: Codable {
+public struct InfostudRequestResultFlags: Decodable {
     let flagEsito: Int
     let id: Int
     let nota: String?

@@ -1,11 +1,11 @@
 import Foundation
 
-internal struct StudentBioResponse: Codable {
+struct StudentBioResponse: Decodable {
     
     let esito: InfostudRequestResultFlags
     let ritorno: StudentBioResponse.Ritorno
     
-    struct Ritorno: Codable {
+    struct Ritorno: Decodable {
         let codiceFiscale: String
         let cognome: String
         let nome: String
@@ -30,7 +30,7 @@ internal struct StudentBioResponse: Codable {
     }
 }
 
-internal func studentBioConverter(from response: StudentBioResponse) -> StudentBio {
+func studentBioConverter(from response: StudentBioResponse) -> StudentBio {
     let values = response.ritorno
     let student = StudentBio(
         cf: values.codiceFiscale,

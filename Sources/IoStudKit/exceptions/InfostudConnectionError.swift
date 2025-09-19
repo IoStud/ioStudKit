@@ -8,9 +8,12 @@ public enum RequestError: Error {
     case infostudError(info: String)
 }
 
-public enum IoStudError: Error {
-    case invalidPassword
+public enum AuthServerError: Error {
     case invalidUsername
-    case infostdNotWorking
+    case invalidPassword
+}
+
+public enum InfostudError: Error {
+    case infostudNotWorking
     case opisRequired(url: String)
 }
