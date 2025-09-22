@@ -1,5 +1,4 @@
-# ioStudKit ![Static Badge](https://img.shields.io/badge/Swift-6.1+-orange?style=flat-square&logo=swift) ![Static Badge](https://img.shields.io/badge/macOS-12+-blue?style=flat-square) ![Static Badge](https://img.shields.io/badge/iOS-15+-blue?style=flat-square)
-
+# ioStudKit ![Static Badge](https://img.shields.io/badge/Swift-6.1+-orange?style=flat-square&logo=swift) ![Static Badge](https://img.shields.io/badge/macOS-12+-blue?style=flat-square) ![Static Badge](https://img.shields.io/badge/iOS-15+-blue?style=flat-square) [![Swift CI](https://github.com/IoStud/ioStudKit/actions/workflows/ci.yml/badge.svg)](https://github.com/IoStud/ioStudKit/actions/workflows/ci.yml)
 **ioStudKit** is an **open-source** Swift Package that provides access to Sapienza University's InfoStud platform, enabling authentication, data retrieval, and exam reservations for your iOS/macOS apps.
 
 ## Functionalities
@@ -63,7 +62,7 @@ You can add **IoStudKit** to your Swift project either in Xcode or via the Swift
        targets: [
            .target(
                name: "YourProject",
-               dependencies: ["IoStudKit"]
+               dependencies: ["ioStudKit"]
            )
        ]
    )
